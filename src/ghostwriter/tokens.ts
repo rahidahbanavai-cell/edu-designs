@@ -1,0 +1,17 @@
+export const G = {
+  bg:   '#051409',
+  hdr:  '#081E0F',
+  stp:  '#060F08',
+  crd:  '#0C2314',
+  crd2: '#071209',
+  grn:  '#00ED64',
+  gpb:  '#062010',
+  wht:  '#FFFFFF',
+  mut:  '#789F80',
+  bdr:  '#183928',
+  dim:  '#091409',
+  gmut: '#386B47',
+  orng: '#F9A649',
+  blue: '#49A1F9',
+  lede: '#C8EED4',
+}
