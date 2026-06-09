@@ -162,12 +162,14 @@ export function WizardStep3({ form, onBack, onDone }: {
   onBack: () => void
   onDone: () => void
 }) {
-  const [progress, setProgress] = useState(0)
-  const [generating, setGenerating] = useState(true)
+  const skipAnim = new URLSearchParams(window.location.search).get('view') === 'step3'
+  const [progress, setProgress] = useState(skipAnim ? 100 : 0)
+  const [generating, setGenerating] = useState(!skipAnim)
   const [expanded, setExpanded] = useState<DraftId | null>(null)
   const [submitted, setSubmitted] = useState(false)
 
   useEffect(() => {
+    if (skipAnim) return
     const interval = setInterval(() => {
       setProgress(prev => {
         if (prev >= 100) {

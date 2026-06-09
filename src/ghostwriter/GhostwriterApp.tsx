@@ -28,9 +28,30 @@ const defaultForm: PackageForm = {
   additionalContext: '',
 }
 
+const demoForm: PackageForm = {
+  campaignName: 'AI Native Developer Campaign — Q2 2026',
+  sources: ['content', 'audience', 'brief'],
+  audience: 'ai-native',
+  outputTypes: ['blog', 'linkedin', 'email'],
+  tone: 'technical-peer',
+  additionalContext: 'Emphasize production RAG use cases.',
+}
+
+function getInitialState(): { view: AppView; form: PackageForm } {
+  const v = new URLSearchParams(window.location.search).get('view') ?? ''
+  switch (v) {
+    case 'step1':     return { view: 'step1',     form: { ...defaultForm, campaignName: 'AI Native Developer Campaign — Q2 2026' } }
+    case 'step2':     return { view: 'step2',     form: demoForm }
+    case 'step3':     return { view: 'step3',     form: demoForm }
+    case 'dashboard': return { view: 'dashboard', form: defaultForm }
+    default:          return { view: 'home',      form: defaultForm }
+  }
+}
+
 export function GhostwriterApp() {
-  const [view, setView] = useState<AppView>('home')
-  const [form, setForm] = useState<PackageForm>(defaultForm)
+  const initial = getInitialState()
+  const [view, setView] = useState<AppView>(initial.view)
+  const [form, setForm] = useState<PackageForm>(initial.form)
 
   const updateForm = (updates: Partial<PackageForm>) => {
     setForm(prev => ({ ...prev, ...updates }))
