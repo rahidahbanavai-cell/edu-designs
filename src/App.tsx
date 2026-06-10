@@ -1,8 +1,11 @@
 import { GhostwriterApp } from './ghostwriter/GhostwriterApp'
 import { GhostwriterV2App } from './ghostwriter2/GhostwriterV2App'
+import { GhostwriterV3App } from './ghostwriter3/GhostwriterV3App'
 
 const version = new URLSearchParams(window.location.search).get('v')
 
 export default function App() {
-  return version === '2' ? <GhostwriterV2App /> : <GhostwriterApp />
+  if (version === '2') return <GhostwriterV2App />
+  if (version === '3') return <GhostwriterV3App />
+  return <GhostwriterApp />
 }
