@@ -1,3 +1,4 @@
+import { Body } from '@leafygreen-ui/typography'
 import { palette } from '../tokens'
 
 const steps = [
@@ -41,21 +42,20 @@ export function StepHeader({ step }: { step: 1 | 2 | 3 }) {
                   )}
                 </div>
                 <div>
-                  <div style={{
-                    fontSize: 13, fontWeight: active ? 700 : done ? 600 : 400,
+                  <Body style={{
+                    fontWeight: active ? 700 : done ? 600 : 400,
                     color: active ? palette.black : done ? palette.green.dark2 : palette.gray.base,
-                    lineHeight: 1.2,
-                  }}>
+                    lineHeight: 1.2, margin: 0,
+                  } as React.CSSProperties}>
                     {s.label}
-                  </div>
-                  <div style={{
+                  </Body>
+                  <Body style={{
                     fontSize: 11,
                     color: active ? palette.gray.dark1 : palette.gray.base,
-                    lineHeight: 1.3,
-                    marginTop: 2,
-                  }}>
+                    lineHeight: 1.3, marginTop: 2,
+                  } as React.CSSProperties}>
                     {s.sublabel}
-                  </div>
+                  </Body>
                 </div>
               </div>
             </div>

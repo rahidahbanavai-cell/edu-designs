@@ -203,7 +203,7 @@ export function WizardStep1({ form, updateForm, onNext }: {
         background: palette.white, borderTop: `1px solid ${palette.gray.light2}`,
         display: 'flex', alignItems: 'center', padding: '0 48px', height: 64,
       }}>
-        <span style={{ color: palette.gray.dark1, fontSize: 12 }}>Step 1 of 3 — Define your sources</span>
+        <Body style={{ color: palette.gray.dark1 }}>Step 1 of 3 — Define your sources</Body>
         <div style={{ flex: 1 }} />
         <Button
           variant="primary"

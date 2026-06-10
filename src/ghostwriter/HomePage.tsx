@@ -1,7 +1,7 @@
 import { Button } from '@leafygreen-ui/button'
 import { Badge } from '@leafygreen-ui/badge'
 import { Card } from '@leafygreen-ui/card'
-import { H2, Body, Overline } from '@leafygreen-ui/typography'
+import { H1, H2, Subtitle, Body, Overline } from '@leafygreen-ui/typography'
 import { palette } from '../tokens'
 
 const examples = [
@@ -75,21 +75,13 @@ export function HomePage({ onStart, onDashboard }: { onStart: () => void; onDash
             MongoDB Education · Content Platform
           </span>
         </div>
-        <h1 style={{
-          color: palette.black, fontSize: 48, fontWeight: 700,
-          margin: '0 0 20px', lineHeight: 1.15,
-          maxWidth: 680, marginLeft: 'auto', marginRight: 'auto',
-          fontFamily: "'Euclid Circular A', sans-serif",
-        }}>
+        <H1 style={{ margin: '0 0 20px', maxWidth: 680, marginLeft: 'auto', marginRight: 'auto' }}>
           Your content knowledge,{' '}
           <span style={{ color: palette.green.dark2 }}>in every format.</span>
-        </h1>
-        <p style={{
-          color: palette.gray.dark1, fontSize: 16, maxWidth: 560,
-          margin: '0 auto 36px', lineHeight: 1.7,
-        }}>
+        </H1>
+        <Body style={{ color: palette.gray.dark1, maxWidth: 560, margin: '0 auto 36px', lineHeight: 1.7 }}>
           Ghostwriter turns MongoDB's existing content into technically credible, on-brand assets — blogs, emails, LinkedIn posts — curated by you, reviewed by a human.
-        </p>
+        </Body>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
           <Button variant="primary" size="large" onClick={onStart}>
             Create New Package
@@ -124,12 +116,7 @@ export function HomePage({ onStart, onDashboard }: { onStart: () => void; onDash
               <div style={{ marginBottom: 12 }}>
                 <Badge variant="green">{s.pill}</Badge>
               </div>
-              <div style={{
-                color: palette.black, fontSize: 15, fontWeight: 600,
-                marginBottom: 8, fontFamily: "'Euclid Circular A', sans-serif",
-              }}>
-                {s.title}
-              </div>
+              <Subtitle style={{ marginBottom: 8 }}>{s.title}</Subtitle>
               <Body style={{ color: palette.gray.dark1 }}>{s.desc}</Body>
             </div>
           ))}

@@ -417,20 +417,9 @@ function DraftCard({ id, draft, isExpanded, onToggle }: {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
-              <button
-                onClick={handleCopy}
-                style={{
-                  background: copied ? palette.green.light3 : palette.gray.light3,
-                  border: 'none', borderRadius: 6,
-                  padding: '6px 12px',
-                  color: copied ? palette.green.dark2 : palette.gray.dark1,
-                  fontSize: 11, fontWeight: 500,
-                  cursor: 'pointer',
-                  fontFamily: "'Euclid Circular A', sans-serif",
-                }}
-              >
+              <Button variant="default" size="xsmall" onClick={handleCopy}>
                 {copied ? '✓ Copied' : 'Copy'}
-              </button>
+              </Button>
               <span style={{ color: palette.gray.base, fontSize: 14 }}>{isExpanded ? '▲' : '▼'}</span>
             </div>
           </button>

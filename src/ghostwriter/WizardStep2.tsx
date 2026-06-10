@@ -221,7 +221,7 @@ export function WizardStep2({ form, updateForm, onBack, onNext }: {
         <Button variant="default" onClick={onBack}>
           ← Back
         </Button>
-        <span style={{ color: palette.gray.dark1, fontSize: 12 }}>Step 2 of 3 — Choose your assets</span>
+        <Body style={{ color: palette.gray.dark1 }}>Step 2 of 3 — Choose your assets</Body>
         <div style={{ flex: 1 }} />
         <Button
           variant="primary"

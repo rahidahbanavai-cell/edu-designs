@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { MongoDBLogoMark } from '@leafygreen-ui/logo'
 import { Badge } from '@leafygreen-ui/badge'
+import { Button } from '@leafygreen-ui/button'
 import { Overline } from '@leafygreen-ui/typography'
 import { palette } from '../tokens'
 import { ChatView } from './ChatView'
@@ -35,17 +36,9 @@ export function GhostwriterV2App() {
           <Badge variant="green">Chat</Badge>
         </div>
         <div style={{ flex: 1 }} />
-        <button
-          onClick={() => setChatKey(k => k + 1)}
-          style={{
-            background: 'none', border: `1px solid ${palette.gray.light2}`,
-            borderRadius: 6, padding: '6px 14px', cursor: 'pointer',
-            fontSize: 13, color: palette.gray.dark1,
-            fontFamily: "'Euclid Circular A', sans-serif", fontWeight: 500,
-          }}
-        >
+        <Button variant="default" onClick={() => setChatKey(k => k + 1)}>
           + New Package
-        </button>
+        </Button>
       </nav>
 
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>

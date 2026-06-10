@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Button } from '@leafygreen-ui/button'
 import { Badge } from '@leafygreen-ui/badge'
+import { Card } from '@leafygreen-ui/card'
+import { Body } from '@leafygreen-ui/typography'
+import TextInput from '@leafygreen-ui/text-input'
 import { palette } from '../tokens'
 
 type Stage =
@@ -292,46 +295,27 @@ export function ChatView() {
             <InteractionRow>
               <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12 }}>
                 {OUTPUT_CARDS.map(card => (
-                  <div key={card.type} style={{
-                    border: `1px solid ${palette.gray.light2}`, borderRadius: 10,
-                    padding: '18px 20px', background: palette.white,
-                    boxShadow: '0 1px 4px rgba(0,30,43,0.06)',
-                  }}>
+                  <Card key={card.type} style={{ padding: '18px 20px' }}>
                     <div style={{
                       display: 'flex', justifyContent: 'space-between',
                       alignItems: 'center', marginBottom: 10,
                     }}>
                       <Badge variant={card.badge}>{card.type}</Badge>
-                      <span style={{ fontSize: 11, color: palette.gray.dark1,
-                        fontFamily: "'Euclid Circular A', sans-serif" }}>
+                      <Body style={{ fontSize: 11, color: palette.gray.dark1 } as React.CSSProperties}>
                         {card.meta}
-                      </span>
+                      </Body>
                     </div>
-                    <p style={{
+                    <Body style={{
                       fontSize: 12, color: palette.gray.dark1, lineHeight: 1.65,
-                      fontStyle: 'italic', margin: '0 0 14px',
-                      fontFamily: "'Euclid Circular A', sans-serif",
-                    }}>
+                      fontStyle: 'italic', marginBottom: 14,
+                    } as React.CSSProperties}>
                       "{card.preview.length > 130 ? card.preview.slice(0, 130) + '…' : card.preview}"
-                    </p>
+                    </Body>
                     <div style={{ display: 'flex', gap: 8 }}>
-                      <button style={{
-                        padding: '6px 12px', fontSize: 12, borderRadius: 6, cursor: 'pointer',
-                        border: `1px solid ${palette.gray.light2}`, background: palette.white,
-                        color: palette.gray.dark1, fontFamily: "'Euclid Circular A', sans-serif",
-                        fontWeight: 500,
-                      }}>
-                        Preview draft
-                      </button>
-                      <button style={{
-                        padding: '6px 14px', fontSize: 12, borderRadius: 6, cursor: 'pointer',
-                        border: 'none', background: palette.green.dark2, color: palette.white,
-                        fontFamily: "'Euclid Circular A', sans-serif", fontWeight: 500,
-                      }}>
-                        Submit for Review →
-                      </button>
+                      <Button variant="default" size="xsmall">Preview draft</Button>
+                      <Button variant="primary" size="xsmall">Submit for Review →</Button>
                     </div>
-                  </div>
+                  </Card>
                 ))}
               </div>
             </InteractionRow>
@@ -346,26 +330,22 @@ export function ChatView() {
         borderTop: `1px solid ${palette.gray.light2}`,
         padding: '14px 28px', background: palette.white, flexShrink: 0,
       }}>
-        <div style={{ maxWidth: 680, margin: '0 auto', display: 'flex', gap: 10 }}>
-          <input
-            ref={inputRef}
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') handleNameSubmit() }}
-            placeholder={
-              stage === 'awaiting_name'
-                ? 'Name your campaign…'
-                : 'Use the options above to respond'
-            }
-            disabled={stage !== 'awaiting_name'}
-            style={{
-              flex: 1, height: 44, borderRadius: 8, fontSize: 14,
-              padding: '0 14px', fontFamily: "'Euclid Circular A', sans-serif",
-              border: `1px solid ${stage === 'awaiting_name' ? palette.green.dark1 : palette.gray.light2}`,
-              background: stage !== 'awaiting_name' ? palette.gray.light3 : palette.white,
-              color: palette.black, outline: 'none',
-            }}
-          />
+        <div style={{ maxWidth: 680, margin: '0 auto', display: 'flex', gap: 10, alignItems: 'flex-end' }}>
+          <div style={{ flex: 1 }}>
+            <TextInput
+              ref={inputRef}
+              aria-label="Campaign name"
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter') handleNameSubmit() }}
+              placeholder={
+                stage === 'awaiting_name'
+                  ? 'Name your campaign…'
+                  : 'Use the options above to respond'
+              }
+              disabled={stage !== 'awaiting_name'}
+            />
+          </div>
           <Button
             variant="primary"
             disabled={stage !== 'awaiting_name' || !input.trim()}
