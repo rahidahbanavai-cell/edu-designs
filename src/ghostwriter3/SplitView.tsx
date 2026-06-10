@@ -1,33 +1,45 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Button }    from '@leafygreen-ui/button'
 import { Badge }     from '@leafygreen-ui/badge'
 import { Card }      from '@leafygreen-ui/card'
 import { TextInput } from '@leafygreen-ui/text-input'
 import { TextArea }  from '@leafygreen-ui/text-area'
 import { Tabs, Tab } from '@leafygreen-ui/tabs'
+import { Stepper, Step } from '@leafygreen-ui/stepper'
+import { Banner } from '@leafygreen-ui/banner'
 import { Label, Body, H2 } from '@leafygreen-ui/typography'
 import { palette }   from '../tokens'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface V3Form {
-  campaignName: string
-  audience:     string
-  outputTypes:  string[]
-  tone:         string
-  context:      string
+  campaignName:         string
+  audience:             string
+  outputTypes:          string[]
+  tone:                 string
+  context:              string
+  includeVisual:        boolean
+  visualPlacement:      'middle' | 'below-text' | 'top-right'
 }
 
 type GenStage = 'idle' | 'generating' | 'done'
 type TabId    = 'blog' | 'linkedin' | 'email'
 
 const defaultForm: V3Form = {
-  campaignName: '',
-  audience:     '',
-  outputTypes:  [],
-  tone:         '',
-  context:      '',
+  campaignName:    '',
+  audience:        '',
+  outputTypes:     [],
+  tone:            '',
+  context:         '',
+  includeVisual:   false,
+  visualPlacement: 'middle',
 }
+
+const VISUAL_PLACEMENTS: { id: V3Form['visualPlacement']; label: string; desc: string }[] = [
+  { id: 'top-right',  label: 'Top right',   desc: 'Below the title, floated right'  },
+  { id: 'middle',     label: 'Middle',       desc: 'Centred between paragraphs'       },
+  { id: 'below-text', label: 'Below text',   desc: 'After the body copy'              },
+]
 
 const ALL_TABS: TabId[] = ['blog', 'linkedin', 'email']
 
@@ -208,7 +220,7 @@ The Atlas approach: $vectorSearch combined with standard query operators in the 
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function SplitView() {
+export function SplitView({ onViewHistory }: { onViewHistory?: () => void }) {
   const [form, setForm]           = useState<V3Form>(defaultForm)
   const [genStage, setGenStage]   = useState<GenStage>('idle')
   const [progress, setProgress]   = useState(0)
@@ -307,60 +319,128 @@ export function SplitView() {
       )
     }
 
-    return (
-      <Card style={{ padding: '36px 40px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-          <Badge variant={previewFmt.badge}>{previewFmt.label}</Badge>
-          <Badge variant="lightgray">Live Preview</Badge>
+    const visualPlaceholder = (
+      <div style={{
+        border: `1.5px dashed ${palette.gray.light1}`,
+        borderRadius: 10, background: palette.gray.light3,
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        gap: 8, padding: '28px 24px', marginBottom: 20,
+      }}>
+        <div style={{
+          width: 40, height: 40, borderRadius: 8,
+          border: `1.5px dashed ${palette.gray.base}`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: palette.gray.base, fontSize: 18,
+        }}>
+          🖼
         </div>
-        <H2 style={{ marginBottom: 10 }}>
-          {form.campaignName
-            ? tabId === 'blog'     ? `Building Production RAG: ${form.campaignName}`
-            : tabId === 'linkedin' ? `Thread: ${form.campaignName}`
-            :                        `Email Campaign: ${form.campaignName}`
-            : <span style={{ color: palette.gray.light1 }}>Campaign title will appear here…</span>
-          }
-        </H2>
+        <Body style={{ fontSize: 12, color: palette.gray.dark1, textAlign: 'center' } as React.CSSProperties}>
+          Visual design placeholder
+        </Body>
+        <Body style={{ fontSize: 11, color: palette.gray.base, textAlign: 'center' } as React.CSSProperties}>
+          Your final visual asset will be placed here after approval
+        </Body>
+      </div>
+    )
 
-        {(form.audience || form.tone) ? (
-          <>
-            <Body style={{ lineHeight: 1.8, marginBottom: 20, color: palette.gray.dark1 }}>
-              {tabId === 'blog'
-                ? blogOpener(form.audience, form.tone)
-                : tabId === 'linkedin'
-                ? linkedInOpener(form.audience, form.tone)
-                : emailOpener(form.audience, form.tone, form.campaignName)
-              }
-            </Body>
-            <SkeletonLines />
-            <div style={{
-              marginTop: 8, padding: '18px 20px', borderRadius: 8,
-              background: palette.green.light3,
-              border: `1px dashed ${palette.green.dark1}`,
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
-            }}>
-              <div>
-                <Body style={{ fontWeight: 600, color: palette.green.dark2, marginBottom: 2 }}>
-                  Preview looks right?
-                </Body>
-                <Body style={{ color: palette.gray.dark1, fontSize: 12 } as React.CSSProperties}>
-                  {canGenerate ? 'Generate the full draft now.' : 'Finish selecting options on the left.'}
+    return (
+      <>
+        {/* Disclaimer banner */}
+        <div style={{ marginBottom: 16 }}>
+          {/* @ts-ignore */}
+          <Banner variant="info">
+            <strong>This is a live preview — not the final product.</strong>{' '}
+            Your approved drafts, including any visual design, will be delivered once they pass the human review process.
+          </Banner>
+        </div>
+
+        <Card style={{ padding: '36px 40px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+            <Badge variant={previewFmt.badge}>{previewFmt.label}</Badge>
+            <Badge variant="lightgray">Live Preview</Badge>
+          </div>
+
+          {/* Title row — top-right visual sits beside the title */}
+          {form.includeVisual && form.visualPlacement === 'top-right' ? (
+            <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', marginBottom: 20 }}>
+              <H2 style={{ flex: 1, marginBottom: 0 }}>
+                {form.campaignName
+                  ? tabId === 'blog'     ? `Building Production RAG: ${form.campaignName}`
+                  : tabId === 'linkedin' ? `Thread: ${form.campaignName}`
+                  :                        `Email Campaign: ${form.campaignName}`
+                  : <span style={{ color: palette.gray.light1 }}>Campaign title will appear here…</span>
+                }
+              </H2>
+              <div style={{
+                width: 140, flexShrink: 0,
+                border: `1.5px dashed ${palette.gray.light1}`,
+                borderRadius: 10, background: palette.gray.light3,
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                justifyContent: 'center', gap: 6, padding: '16px 12px',
+              }}>
+                <span style={{ fontSize: 18, color: palette.gray.base }}>🖼</span>
+                <Body style={{ fontSize: 10, color: palette.gray.dark1, textAlign: 'center' } as React.CSSProperties}>
+                  Visual placeholder
                 </Body>
               </div>
-              <Button variant="primary" disabled={!canGenerate} onClick={handleGenerate}>
-                Generate →
-              </Button>
             </div>
-          </>
-        ) : (
-          <>
-            <Body style={{ color: palette.gray.light1, marginBottom: 20 }}>
-              Select an audience and tone to preview your opening…
-            </Body>
-            <SkeletonLines dim />
-          </>
-        )}
-      </Card>
+          ) : (
+            <H2 style={{ marginBottom: 10 }}>
+              {form.campaignName
+                ? tabId === 'blog'     ? `Building Production RAG: ${form.campaignName}`
+                : tabId === 'linkedin' ? `Thread: ${form.campaignName}`
+                :                        `Email Campaign: ${form.campaignName}`
+                : <span style={{ color: palette.gray.light1 }}>Campaign title will appear here…</span>
+              }
+            </H2>
+          )}
+
+          {(form.audience || form.tone) ? (
+            <>
+              <Body style={{ lineHeight: 1.8, marginBottom: 20, color: palette.gray.dark1 }}>
+                {tabId === 'blog'
+                  ? blogOpener(form.audience, form.tone)
+                  : tabId === 'linkedin'
+                  ? linkedInOpener(form.audience, form.tone)
+                  : emailOpener(form.audience, form.tone, form.campaignName)
+                }
+              </Body>
+
+              {form.includeVisual && form.visualPlacement === 'middle' && visualPlaceholder}
+
+              <SkeletonLines />
+
+              {form.includeVisual && form.visualPlacement === 'below-text' && visualPlaceholder}
+
+              <div style={{
+                marginTop: 8, padding: '18px 20px', borderRadius: 8,
+                background: palette.green.light3,
+                border: `1px dashed ${palette.green.dark1}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+              }}>
+                <div>
+                  <Body style={{ fontWeight: 600, color: palette.green.dark2, marginBottom: 2 }}>
+                    Preview looks right?
+                  </Body>
+                  <Body style={{ color: palette.gray.dark1, fontSize: 12 } as React.CSSProperties}>
+                    {canGenerate ? 'Generate the full draft now.' : 'Finish selecting options on the left.'}
+                  </Body>
+                </div>
+                <Button variant="primary" disabled={!canGenerate} onClick={handleGenerate}>
+                  Generate →
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <Body style={{ color: palette.gray.light1, marginBottom: 20 }}>
+                Select an audience and tone to preview your opening…
+              </Body>
+              <SkeletonLines dim />
+            </>
+          )}
+        </Card>
+      </>
     )
   }
 
@@ -403,33 +483,125 @@ export function SplitView() {
 
   // ── Done content per tab ──────────────────────────────────────────────────
 
+  const doneCardRefs = useRef<Record<TabId, HTMLDivElement | null>>({ blog: null, linkedin: null, email: null })
+
+  const handleDownloadPng = async (tabId: TabId) => {
+    const node = doneCardRefs.current[tabId]
+    if (!node) return
+    const html2canvas = (await import('html2canvas')).default
+    const canvas = await html2canvas(node, { scale: 2, useCORS: true })
+    const link = document.createElement('a')
+    link.download = `${tabId}-draft.png`
+    link.href = canvas.toDataURL('image/png')
+    link.click()
+  }
+
   const renderDoneContent = (tabId: TabId) => {
-    const fmt = FORMATS.find(f => f.id === tabId)!
-    return (
-      <Card style={{ padding: '36px 40px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-          <Badge variant={fmt.badge}>{fmt.label}</Badge>
-          <Badge variant="green">Ready for review</Badge>
-        </div>
-        <H2 style={{ marginBottom: 20 }}>
-          {tabId === 'blog'
-            ? `Building Production RAG: ${titleText}`
-            : tabId === 'linkedin'
-            ? `LinkedIn Thread: ${titleText}`
-            : `Email Sequence: ${titleText}`}
-        </H2>
-        <Body style={{ lineHeight: 1.9, color: palette.gray.dark1, whiteSpace: 'pre-wrap' } as React.CSSProperties}>
-          {tabId === 'blog' ? FULL_BLOG : tabId === 'linkedin' ? FULL_LINKEDIN : FULL_EMAIL}
-        </Body>
+    const fmt     = FORMATS.find(f => f.id === tabId)!
+    const title   = tabId === 'blog'
+      ? `Building Production RAG: ${titleText}`
+      : tabId === 'linkedin'
+      ? `LinkedIn Thread: ${titleText}`
+      : `Email Sequence: ${titleText}`
+    const fullText = tabId === 'blog' ? FULL_BLOG : tabId === 'linkedin' ? FULL_LINKEDIN : FULL_EMAIL
+
+    // Split content at mid-paragraph for 'middle' placement
+    const paragraphs  = fullText.split('\n\n')
+    const mid         = Math.ceil(paragraphs.length / 2)
+    const beforeText  = form.includeVisual && form.visualPlacement === 'middle'
+      ? paragraphs.slice(0, mid).join('\n\n')
+      : fullText
+    const afterText   = form.includeVisual && form.visualPlacement === 'middle'
+      ? paragraphs.slice(mid).join('\n\n')
+      : null
+
+    const visualBlock = (
+      <div style={{
+        border: `1.5px dashed ${palette.gray.light1}`,
+        borderRadius: 10, background: palette.gray.light3,
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        justifyContent: 'center', gap: 8, padding: '28px 24px', margin: '20px 0',
+      }}>
         <div style={{
-          marginTop: 32, paddingTop: 20,
-          borderTop: `1px solid ${palette.gray.light2}`,
-          display: 'flex', gap: 10,
-        }}>
-          <Button variant="default">Download draft</Button>
-          <Button variant="primary" onClick={() => setSubmitted(true)}>Submit for Review →</Button>
+          width: 40, height: 40, borderRadius: 8,
+          border: `1.5px dashed ${palette.gray.base}`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 18, color: palette.gray.base,
+        }}>🖼</div>
+        <Body style={{ fontSize: 12, color: palette.gray.dark1, textAlign: 'center' } as React.CSSProperties}>
+          Visual design placeholder
+        </Body>
+        <Body style={{ fontSize: 11, color: palette.gray.base, textAlign: 'center' } as React.CSSProperties}>
+          Final visual asset placed here after approval
+        </Body>
+      </div>
+    )
+
+    return (
+      <>
+        {/* Disclaimer banner */}
+        <div style={{ marginBottom: 16 }}>
+          {/* @ts-ignore */}
+          <Banner variant="info">
+            <strong>This is a draft — not the final product.</strong>{' '}
+            Your approved content, including any visual design, will be delivered once it passes the human review process.
+          </Banner>
         </div>
-      </Card>
+
+        <Card style={{ padding: '36px 40px' }}>
+          <div ref={el => { doneCardRefs.current[tabId] = el }} style={{ background: palette.white }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+              <Badge variant={fmt.badge}>{fmt.label}</Badge>
+              <Badge variant="green">Ready for review</Badge>
+            </div>
+
+            {/* Title — top-right visual sits beside title */}
+            {form.includeVisual && form.visualPlacement === 'top-right' ? (
+              <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', marginBottom: 20 }}>
+                <H2 style={{ flex: 1, marginBottom: 0 }}>{title}</H2>
+                <div style={{
+                  width: 140, flexShrink: 0,
+                  border: `1.5px dashed ${palette.gray.light1}`,
+                  borderRadius: 10, background: palette.gray.light3,
+                  display: 'flex', flexDirection: 'column', alignItems: 'center',
+                  justifyContent: 'center', gap: 6, padding: '16px 12px',
+                }}>
+                  <span style={{ fontSize: 18, color: palette.gray.base }}>🖼</span>
+                  <Body style={{ fontSize: 10, color: palette.gray.dark1, textAlign: 'center' } as React.CSSProperties}>
+                    Visual placeholder
+                  </Body>
+                </div>
+              </div>
+            ) : (
+              <H2 style={{ marginBottom: 20 }}>{title}</H2>
+            )}
+
+            <Body style={{ lineHeight: 1.9, color: palette.gray.dark1, whiteSpace: 'pre-wrap' } as React.CSSProperties}>
+              {beforeText}
+            </Body>
+
+            {form.includeVisual && form.visualPlacement === 'middle' && visualBlock}
+
+            {afterText && (
+              <Body style={{ lineHeight: 1.9, color: palette.gray.dark1, whiteSpace: 'pre-wrap' } as React.CSSProperties}>
+                {afterText}
+              </Body>
+            )}
+
+            {form.includeVisual && form.visualPlacement === 'below-text' && visualBlock}
+          </div>
+          <div style={{
+            marginTop: 32, paddingTop: 20,
+            borderTop: `1px solid ${palette.gray.light2}`,
+            display: 'flex', gap: 10,
+          }}>
+            <Button variant="default" onClick={() => handleDownloadPng(tabId)}>
+              Download as PNG
+            </Button>
+            <Button variant="primary" onClick={() => setSubmitted(true)}>Submit for Review →</Button>
+          </div>
+        </Card>
+      </>
     )
   }
 
@@ -439,12 +611,6 @@ export function SplitView() {
     const audience = AUDIENCES.find(a => a.id === form.audience)
     const tone     = TONES.find(t => t.id === form.tone)
 
-    const reviewSteps = [
-      { label: 'Package received',   detail: `Your ${selectedFmts.length} draft${selectedFmts.length !== 1 ? 's' : ''} are queued for review.`, done: true  },
-      { label: 'Reviewer assigned',  detail: 'A content reviewer will be confirmed within 1 business day.',                                         done: false },
-      { label: 'Review in progress', detail: 'Typical turnaround: 1–2 business days.',                                                              done: false },
-      { label: 'Ready to share',     detail: "You'll be notified by email when your drafts are approved.",                                          done: false },
-    ]
 
     return (
       <div style={{ padding: '48px 32px' }}>
@@ -496,49 +662,47 @@ export function SplitView() {
           {/* Review timeline */}
           <Card style={{ padding: '20px 24px', marginBottom: 28 }}>
             <Body style={{ fontWeight: 600, color: palette.black, marginBottom: 18 }}>What happens next</Body>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-              {reviewSteps.map((step, i) => (
-                <div key={step.label} style={{ display: 'flex', gap: 14 }}>
-                  {/* Timeline spine */}
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 20, flexShrink: 0 }}>
-                    <div style={{
-                      width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
-                      background: step.done ? palette.green.dark1 : palette.gray.light2,
-                      border: step.done ? 'none' : `2px solid ${palette.gray.light1}`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      {step.done
-                        ? <span style={{ color: palette.white, fontSize: 10, fontWeight: 700 }}>✓</span>
-                        : <div style={{ width: 6, height: 6, borderRadius: '50%', background: palette.gray.light1 }} />
-                      }
-                    </div>
-                    {i < reviewSteps.length - 1 && (
-                      <div style={{ width: 2, flex: 1, minHeight: 24, background: palette.gray.light2, margin: '4px 0' }} />
-                    )}
-                  </div>
-                  {/* Step content */}
-                  <div style={{ paddingBottom: i < reviewSteps.length - 1 ? 20 : 0 }}>
-                    <Body style={{
-                      fontWeight: 600,
-                      color: step.done ? palette.black : palette.gray.dark1,
-                      marginBottom: 2,
-                    } as React.CSSProperties}>
-                      {step.label}
-                    </Body>
-                    <Body style={{ fontSize: 12, color: palette.gray.dark1 } as React.CSSProperties}>
-                      {step.detail}
-                    </Body>
-                  </div>
+            {/* step 0 complete (received), step 1 (Reviewer assigned) is current */}
+            {/* @ts-ignore */}
+            <Stepper currentStep={1}>
+              {/* @ts-ignore */}
+              <Step>Package received</Step>
+              {/* @ts-ignore */}
+              <Step>Reviewer assigned</Step>
+              {/* @ts-ignore */}
+              <Step>Review in progress</Step>
+              {/* @ts-ignore */}
+              <Step>Ready to share</Step>
+            </Stepper>
+            <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {[
+                { label: 'Package received',   detail: `Your ${selectedFmts.length} draft${selectedFmts.length !== 1 ? 's' : ''} are queued for review.`, done: true  },
+                { label: 'Reviewer assigned',  detail: 'A content reviewer will be confirmed within 1 business day.',                                       done: false },
+                { label: 'Review in progress', detail: 'Typical turnaround: 1–2 business days.',                                                            done: false },
+                { label: 'Ready to share',     detail: "You'll be notified by email when your drafts are approved.",                                        done: false },
+              ].map(s => (
+                <div key={s.label} style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
+                  <Body style={{ fontSize: 12, fontWeight: 600, color: s.done ? palette.black : palette.gray.dark1, whiteSpace: 'nowrap' as const } as React.CSSProperties}>
+                    {s.label}:
+                  </Body>
+                  <Body style={{ fontSize: 12, color: palette.gray.dark1 } as React.CSSProperties}>
+                    {s.detail}
+                  </Body>
                 </div>
               ))}
             </div>
           </Card>
 
           {/* Actions */}
-          <div style={{ display: 'flex', gap: 10 }}>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const }}>
             <Button variant="default" onClick={() => setSubmitted(false)}>
               ← Back to drafts
             </Button>
+            {onViewHistory && (
+              <Button variant="default" onClick={onViewHistory}>
+                View Package History
+              </Button>
+            )}
             <Button variant="primary" onClick={handleReset}>
               Start New Package
             </Button>
@@ -661,6 +825,72 @@ export function SplitView() {
                 )
               })}
             </div>
+          </div>
+
+          {/* Visual Design */}
+          <div style={{ marginBottom: 20 }}>
+            <Label style={{ display: 'block', marginBottom: 4 }}>Visual Design</Label>
+            <Body style={{ color: palette.gray.dark1, marginBottom: 10, fontSize: 12 } as React.CSSProperties}>
+              Include a visual asset in your content?
+            </Body>
+            <div style={{ display: 'flex', gap: 8, marginBottom: form.includeVisual ? 12 : 0 }}>
+              {(['Yes', 'No'] as const).map(opt => {
+                const on = opt === 'Yes' ? form.includeVisual : !form.includeVisual
+                return (
+                  <button
+                    key={opt}
+                    onClick={() => update({ includeVisual: opt === 'Yes' })}
+                    style={{
+                      flex: 1, padding: '9px 0', borderRadius: 8, cursor: 'pointer',
+                      border: `1px solid ${on ? palette.green.dark1 : palette.gray.light2}`,
+                      background: on ? palette.green.light3 : palette.white,
+                      fontSize: 12, fontWeight: 600,
+                      color: on ? palette.green.dark2 : palette.gray.dark1,
+                      fontFamily: "'Euclid Circular A', sans-serif", transition: 'all 0.1s',
+                    }}
+                  >
+                    {opt}
+                  </button>
+                )
+              })}
+            </div>
+            {form.includeVisual && (
+              <div>
+                <Body style={{ color: palette.gray.dark1, marginBottom: 8, fontSize: 12 } as React.CSSProperties}>
+                  Where should the visual appear?
+                </Body>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {VISUAL_PLACEMENTS.map(p => {
+                    const on = form.visualPlacement === p.id
+                    return (
+                      <button key={p.id} onClick={() => update({ visualPlacement: p.id })} style={{
+                        display: 'flex', alignItems: 'center', gap: 12,
+                        padding: '10px 12px', borderRadius: 8, cursor: 'pointer',
+                        border: `1px solid ${on ? palette.green.dark1 : palette.gray.light2}`,
+                        background: on ? palette.green.light3 : palette.white,
+                        textAlign: 'left', fontFamily: "'Euclid Circular A', sans-serif",
+                        transition: 'all 0.1s',
+                      }}>
+                        <div style={{
+                          width: 16, height: 16, borderRadius: '50%', flexShrink: 0,
+                          border: `2px solid ${on ? palette.green.dark1 : palette.gray.light1}`,
+                          background: on ? palette.green.dark1 : 'transparent',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                          {on && <div style={{ width: 6, height: 6, borderRadius: '50%', background: palette.white }} />}
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: on ? palette.green.dark2 : palette.black }}>
+                            {p.label}
+                          </div>
+                          <div style={{ fontSize: 11, color: palette.gray.dark1 }}>{p.desc}</div>
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Context — TextArea */}

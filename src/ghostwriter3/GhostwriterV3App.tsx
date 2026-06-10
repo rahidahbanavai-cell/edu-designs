@@ -1,9 +1,17 @@
+import { useState } from 'react'
 import { MongoDBLogoMark } from '@leafygreen-ui/logo'
 import { Badge } from '@leafygreen-ui/badge'
+import { Button } from '@leafygreen-ui/button'
 import { palette } from '../tokens'
 import { SplitView } from './SplitView'
+import { LandingPage } from './LandingPage'
+import { PackageHistory } from './PackageHistory'
+
+type View = 'landing' | 'editor' | 'history'
 
 export function GhostwriterV3App() {
+  const [view, setView] = useState<View>('landing')
+
   return (
     <div style={{
       height: '100vh', display: 'flex', flexDirection: 'column',
@@ -14,7 +22,13 @@ export function GhostwriterV3App() {
         display: 'flex', alignItems: 'center', padding: '0 28px',
         flexShrink: 0, background: palette.white, zIndex: 10,
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <button
+          onClick={() => setView('landing')}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+          }}
+        >
           {/* @ts-ignore */}
           <MongoDBLogoMark height={24} />
           <span style={{
@@ -23,10 +37,23 @@ export function GhostwriterV3App() {
           }}>
             Ghostwriter
           </span>
-          <Badge variant="blue">Live Preview</Badge>
-        </div>
+        </button>
+        {view === 'editor' && <Badge variant="blue" style={{ marginLeft: 8 }}>Live Preview</Badge>}
+        <div style={{ flex: 1 }} />
+        {view === 'editor' && (
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Button variant="default" onClick={() => setView('history')}>Package History</Button>
+            <Button variant="default" onClick={() => setView('landing')}>← Overview</Button>
+          </div>
+        )}
+        {view === 'history' && (
+          <Button variant="default" onClick={() => setView('editor')}>← Back to Editor</Button>
+        )}
       </nav>
-      <SplitView />
+
+      {view === 'landing' && <LandingPage onGetStarted={() => setView('editor')} />}
+      {view === 'editor'  && <SplitView onViewHistory={() => setView('history')} />}
+      {view === 'history' && <PackageHistory onBack={() => setView('editor')} />}
     </div>
   )
 }
