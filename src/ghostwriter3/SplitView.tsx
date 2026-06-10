@@ -214,6 +214,7 @@ export function SplitView() {
   const [progress, setProgress]   = useState(0)
   const [genItems, setGenItems]   = useState<string[]>([])
   const [activeTab, setActiveTab] = useState<TabId>('blog')
+  const [submitted, setSubmitted] = useState(false)
 
   const update = (patch: Partial<V3Form>) => setForm(prev => ({ ...prev, ...patch }))
 
@@ -232,8 +233,17 @@ export function SplitView() {
     setGenStage('generating')
     setProgress(0)
     setGenItems([])
+    setSubmitted(false)
     const first = FORMATS.find(f => form.outputTypes.includes(f.id))
     if (first) setActiveTab(first.id)
+  }
+
+  const handleReset = () => {
+    setForm(defaultForm)
+    setGenStage('idle')
+    setProgress(0)
+    setGenItems([])
+    setSubmitted(false)
   }
 
   useEffect(() => {
@@ -257,17 +267,21 @@ export function SplitView() {
     return () => clearInterval(id)
   }, [genStage]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const hasPreview = Boolean(form.audience || form.tone || form.campaignName)
-  const titleText  = form.campaignName || 'Your Campaign'
-  const tabIdx     = ALL_TABS.indexOf(activeTab)
+  const hasPreview     = Boolean(form.audience || form.tone || form.campaignName)
+  const titleText      = form.campaignName || 'Your Campaign'
+  // For the live preview, show the first selected format; fall back to blog
+  const previewFmt     = FORMATS.find(f => form.outputTypes.includes(f.id)) ?? FORMATS[0]
+  // For done tabs: only selected formats, with correct index
+  const selectedFmts   = FORMATS.filter(f => form.outputTypes.includes(f.id))
+  const missingFmts    = FORMATS.filter(f => !form.outputTypes.includes(f.id))
+  const selectedTabIdx = Math.max(0, selectedFmts.findIndex(f => f.id === activeTab))
 
-  // ── Per-tab content renderer ──────────────────────────────────────────────
+  // ── Idle live preview (no tabs) ───────────────────────────────────────────
 
-  const renderTabContent = (tabId: TabId) => {
-    const fmt = FORMATS.find(f => f.id === tabId)!
+  const renderIdlePreview = () => {
+    const tabId = previewFmt.id
 
-    // Empty state
-    if (genStage === 'idle' && !hasPreview) {
+    if (!hasPreview) {
       return (
         <div style={{
           display: 'flex', flexDirection: 'column',
@@ -293,125 +307,110 @@ export function SplitView() {
       )
     }
 
-    // Generating animation (same across all tabs)
-    if (genStage === 'generating') {
-      return (
-        <Card style={{ padding: '36px 40px' }}>
-          <div style={{ marginBottom: 20 }}>
-            <Badge variant="yellow">Generating</Badge>
-          </div>
-          <H2 style={{ marginBottom: 24 }}>{titleText}</H2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-            {FORMATS.filter(f => form.outputTypes.includes(f.id)).map(f => {
-              const done = genItems.includes(f.label)
-              return (
-                <div key={f.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{
-                    width: 18, height: 18, borderRadius: '50%', flexShrink: 0,
-                    background: done ? palette.green.dark1 : palette.gray.light2,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    transition: 'background 0.3s',
-                  }}>
-                    {done && <span style={{ color: palette.white, fontSize: 9, fontWeight: 700 }}>✓</span>}
-                  </div>
-                  <Body style={{ color: done ? palette.black : palette.gray.dark1, transition: 'color 0.3s' }}>
-                    {f.label}
-                  </Body>
-                </div>
-              )
-            })}
-          </div>
-          <div style={{ height: 4, borderRadius: 2, background: palette.gray.light2, overflow: 'hidden' }}>
+    return (
+      <Card style={{ padding: '36px 40px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+          <Badge variant={previewFmt.badge}>{previewFmt.label}</Badge>
+          <Badge variant="lightgray">Live Preview</Badge>
+        </div>
+        <H2 style={{ marginBottom: 10 }}>
+          {form.campaignName
+            ? tabId === 'blog'     ? `Building Production RAG: ${form.campaignName}`
+            : tabId === 'linkedin' ? `Thread: ${form.campaignName}`
+            :                        `Email Campaign: ${form.campaignName}`
+            : <span style={{ color: palette.gray.light1 }}>Campaign title will appear here…</span>
+          }
+        </H2>
+
+        {(form.audience || form.tone) ? (
+          <>
+            <Body style={{ lineHeight: 1.8, marginBottom: 20, color: palette.gray.dark1 }}>
+              {tabId === 'blog'
+                ? blogOpener(form.audience, form.tone)
+                : tabId === 'linkedin'
+                ? linkedInOpener(form.audience, form.tone)
+                : emailOpener(form.audience, form.tone, form.campaignName)
+              }
+            </Body>
+            <SkeletonLines />
             <div style={{
-              height: '100%', borderRadius: 2, background: palette.green.dark1,
-              width: `${progress}%`, transition: 'width 0.16s ease-out',
-            }} />
-          </div>
-        </Card>
-      )
-    }
-
-    // Partial live preview (idle + has some form data)
-    if (genStage === 'idle') {
-      return (
-        <Card style={{ padding: '36px 40px' }}>
-          <div style={{ marginBottom: 16 }}>
-            <Badge variant={fmt.badge}>{fmt.label}</Badge>
-          </div>
-          <H2 style={{ marginBottom: 10 }}>
-            {form.campaignName
-              ? tabId === 'blog'     ? `Building Production RAG: ${form.campaignName}`
-              : tabId === 'linkedin' ? `Thread: ${form.campaignName}`
-              :                        `Email Campaign: ${form.campaignName}`
-              : <span style={{ color: palette.gray.light1 }}>Campaign title will appear here…</span>
-            }
-          </H2>
-
-          {(form.audience || form.tone) ? (
-            <>
-              <Body style={{ lineHeight: 1.8, marginBottom: 20, color: palette.gray.dark1 }}>
-                {tabId === 'blog'
-                  ? blogOpener(form.audience, form.tone)
-                  : tabId === 'linkedin'
-                  ? linkedInOpener(form.audience, form.tone)
-                  : emailOpener(form.audience, form.tone, form.campaignName)
-                }
-              </Body>
-              <SkeletonLines />
-              <div style={{
-                marginTop: 8, padding: '18px 20px', borderRadius: 8,
-                background: palette.green.light3,
-                border: `1px dashed ${palette.green.dark1}`,
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
-              }}>
-                <div>
-                  <Body style={{ fontWeight: 600, color: palette.green.dark2, marginBottom: 2 }}>
-                    Preview looks right?
-                  </Body>
-                  <Body style={{ color: palette.gray.dark1, fontSize: 12 } as React.CSSProperties}>
-                    {canGenerate ? 'Generate the full draft now.' : 'Finish selecting options on the left.'}
-                  </Body>
-                </div>
-                <Button variant="primary" disabled={!canGenerate} onClick={handleGenerate}>
-                  Generate →
-                </Button>
+              marginTop: 8, padding: '18px 20px', borderRadius: 8,
+              background: palette.green.light3,
+              border: `1px dashed ${palette.green.dark1}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+            }}>
+              <div>
+                <Body style={{ fontWeight: 600, color: palette.green.dark2, marginBottom: 2 }}>
+                  Preview looks right?
+                </Body>
+                <Body style={{ color: palette.gray.dark1, fontSize: 12 } as React.CSSProperties}>
+                  {canGenerate ? 'Generate the full draft now.' : 'Finish selecting options on the left.'}
+                </Body>
               </div>
-            </>
-          ) : (
-            <>
-              <Body style={{ color: palette.gray.light1, marginBottom: 20 }}>
-                Select an audience and tone to preview your opening…
+              <Button variant="primary" disabled={!canGenerate} onClick={handleGenerate}>
+                Generate →
+              </Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <Body style={{ color: palette.gray.light1, marginBottom: 20 }}>
+              Select an audience and tone to preview your opening…
+            </Body>
+            <SkeletonLines dim />
+          </>
+        )}
+      </Card>
+    )
+  }
+
+  // ── Generating panel (no tabs) ────────────────────────────────────────────
+
+  const renderGenerating = () => (
+    <Card style={{ padding: '36px 40px' }}>
+      <div style={{ marginBottom: 20 }}>
+        <Badge variant="yellow">Generating</Badge>
+      </div>
+      <H2 style={{ marginBottom: 24 }}>{titleText}</H2>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+        {FORMATS.filter(f => form.outputTypes.includes(f.id)).map(f => {
+          const done = genItems.includes(f.label)
+          return (
+            <div key={f.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{
+                width: 18, height: 18, borderRadius: '50%', flexShrink: 0,
+                background: done ? palette.green.dark1 : palette.gray.light2,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'background 0.3s',
+              }}>
+                {done && <span style={{ color: palette.white, fontSize: 9, fontWeight: 700 }}>✓</span>}
+              </div>
+              <Body style={{ color: done ? palette.black : palette.gray.dark1, transition: 'color 0.3s' }}>
+                {f.label}
               </Body>
-              <SkeletonLines dim />
-            </>
-          )}
-        </Card>
-      )
-    }
+            </div>
+          )
+        })}
+      </div>
+      <div style={{ height: 4, borderRadius: 2, background: palette.gray.light2, overflow: 'hidden' }}>
+        <div style={{
+          height: '100%', borderRadius: 2, background: palette.green.dark1,
+          width: `${progress}%`, transition: 'width 0.16s ease-out',
+        }} />
+      </div>
+    </Card>
+  )
 
-    // Done — check if this format was generated
-    const isSelected = form.outputTypes.includes(tabId)
-    if (!isSelected) {
-      return (
-        <Card style={{ padding: '36px 40px', textAlign: 'center' }}>
-          <Body style={{ color: palette.gray.dark1, marginBottom: 16 }}>
-            This format wasn't included in your last generation.<br />
-            Select it on the left and regenerate to include it.
-          </Body>
-          <Button variant="primary" onClick={handleGenerate} disabled={!canGenerate}>
-            Regenerate with {fmt.label} →
-          </Button>
-        </Card>
-      )
-    }
+  // ── Done content per tab ──────────────────────────────────────────────────
 
+  const renderDoneContent = (tabId: TabId) => {
+    const fmt = FORMATS.find(f => f.id === tabId)!
     return (
       <Card style={{ padding: '36px 40px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
           <Badge variant={fmt.badge}>{fmt.label}</Badge>
           <Badge variant="green">Ready for review</Badge>
         </div>
-
         <H2 style={{ marginBottom: 20 }}>
           {tabId === 'blog'
             ? `Building Production RAG: ${titleText}`
@@ -419,27 +418,134 @@ export function SplitView() {
             ? `LinkedIn Thread: ${titleText}`
             : `Email Sequence: ${titleText}`}
         </H2>
-
-        <Body style={{
-          lineHeight: 1.9, color: palette.gray.dark1,
-          whiteSpace: 'pre-wrap',
-        } as React.CSSProperties}>
-          {tabId === 'blog'
-            ? FULL_BLOG
-            : tabId === 'linkedin'
-            ? FULL_LINKEDIN
-            : FULL_EMAIL}
+        <Body style={{ lineHeight: 1.9, color: palette.gray.dark1, whiteSpace: 'pre-wrap' } as React.CSSProperties}>
+          {tabId === 'blog' ? FULL_BLOG : tabId === 'linkedin' ? FULL_LINKEDIN : FULL_EMAIL}
         </Body>
-
         <div style={{
           marginTop: 32, paddingTop: 20,
           borderTop: `1px solid ${palette.gray.light2}`,
           display: 'flex', gap: 10,
         }}>
           <Button variant="default">Download draft</Button>
-          <Button variant="primary">Submit for Review →</Button>
+          <Button variant="primary" onClick={() => setSubmitted(true)}>Submit for Review →</Button>
         </div>
       </Card>
+    )
+  }
+
+  // ── Post-submit confirmation panel ───────────────────────────────────────
+
+  const renderSubmitted = () => {
+    const audience = AUDIENCES.find(a => a.id === form.audience)
+    const tone     = TONES.find(t => t.id === form.tone)
+
+    const reviewSteps = [
+      { label: 'Package received',   detail: `Your ${selectedFmts.length} draft${selectedFmts.length !== 1 ? 's' : ''} are queued for review.`, done: true  },
+      { label: 'Reviewer assigned',  detail: 'A content reviewer will be confirmed within 1 business day.',                                         done: false },
+      { label: 'Review in progress', detail: 'Typical turnaround: 1–2 business days.',                                                              done: false },
+      { label: 'Ready to share',     detail: "You'll be notified by email when your drafts are approved.",                                          done: false },
+    ]
+
+    return (
+      <div style={{ padding: '48px 32px' }}>
+        <div style={{ maxWidth: 640, margin: '0 auto' }}>
+
+          {/* Success mark */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 36, textAlign: 'center' }}>
+            <div style={{
+              width: 64, height: 64, borderRadius: '50%',
+              background: palette.green.dark1,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              marginBottom: 20,
+            }}>
+              <span style={{ color: palette.white, fontSize: 28, fontWeight: 700, lineHeight: 1 }}>✓</span>
+            </div>
+            <H2 style={{ marginBottom: 6 }}>Submitted for review</H2>
+            <Body style={{ color: palette.gray.dark1 } as React.CSSProperties}>
+              Your content package is in the review queue.
+            </Body>
+          </div>
+
+          {/* Package summary */}
+          <Card style={{ padding: '20px 24px', marginBottom: 20 }}>
+            <Body style={{ fontWeight: 600, color: palette.black, marginBottom: 14 }}>Package summary</Body>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <SummaryRow label="Package">
+                <Body style={{ fontSize: 13 } as React.CSSProperties}>
+                  {form.campaignName || <span style={{ color: palette.gray.dark1, fontStyle: 'italic' }}>Untitled</span>}
+                </Body>
+              </SummaryRow>
+              <SummaryRow label="Formats">
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
+                  {selectedFmts.map(f => <Badge key={f.id} variant={f.badge}>{f.label}</Badge>)}
+                </div>
+              </SummaryRow>
+              {audience && (
+                <SummaryRow label="Audience">
+                  <Body style={{ fontSize: 13 } as React.CSSProperties}>{audience.label}</Body>
+                </SummaryRow>
+              )}
+              {tone && (
+                <SummaryRow label="Tone">
+                  <Body style={{ fontSize: 13 } as React.CSSProperties}>{tone.label}</Body>
+                </SummaryRow>
+              )}
+            </div>
+          </Card>
+
+          {/* Review timeline */}
+          <Card style={{ padding: '20px 24px', marginBottom: 28 }}>
+            <Body style={{ fontWeight: 600, color: palette.black, marginBottom: 18 }}>What happens next</Body>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+              {reviewSteps.map((step, i) => (
+                <div key={step.label} style={{ display: 'flex', gap: 14 }}>
+                  {/* Timeline spine */}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 20, flexShrink: 0 }}>
+                    <div style={{
+                      width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
+                      background: step.done ? palette.green.dark1 : palette.gray.light2,
+                      border: step.done ? 'none' : `2px solid ${palette.gray.light1}`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      {step.done
+                        ? <span style={{ color: palette.white, fontSize: 10, fontWeight: 700 }}>✓</span>
+                        : <div style={{ width: 6, height: 6, borderRadius: '50%', background: palette.gray.light1 }} />
+                      }
+                    </div>
+                    {i < reviewSteps.length - 1 && (
+                      <div style={{ width: 2, flex: 1, minHeight: 24, background: palette.gray.light2, margin: '4px 0' }} />
+                    )}
+                  </div>
+                  {/* Step content */}
+                  <div style={{ paddingBottom: i < reviewSteps.length - 1 ? 20 : 0 }}>
+                    <Body style={{
+                      fontWeight: 600,
+                      color: step.done ? palette.black : palette.gray.dark1,
+                      marginBottom: 2,
+                    } as React.CSSProperties}>
+                      {step.label}
+                    </Body>
+                    <Body style={{ fontSize: 12, color: palette.gray.dark1 } as React.CSSProperties}>
+                      {step.detail}
+                    </Body>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Actions */}
+          <div style={{ display: 'flex', gap: 10 }}>
+            <Button variant="default" onClick={() => setSubmitted(false)}>
+              ← Back to drafts
+            </Button>
+            <Button variant="primary" onClick={handleReset}>
+              Start New Package
+            </Button>
+          </div>
+
+        </div>
+      </div>
     )
   }
 
@@ -574,62 +680,109 @@ export function SplitView() {
         <div style={{
           padding: '16px 24px', borderTop: `1px solid ${palette.gray.light2}`, flexShrink: 0,
         }}>
-          {genStage === 'done' && (
-            <div style={{ marginBottom: 8 }}>
+          {submitted ? (
+            <Button variant="primary" onClick={handleReset}>
+              Start New Package
+            </Button>
+          ) : (
+            <>
+              {genStage === 'done' && (
+                <div style={{ marginBottom: 8 }}>
+                  <Button
+                    variant="default"
+                    onClick={() => { setGenStage('idle'); setProgress(0) }}
+                  >
+                    ↺ Reset and regenerate
+                  </Button>
+                </div>
+              )}
               <Button
-                variant="default"
-                onClick={() => { setGenStage('idle'); setProgress(0) }}
+                variant="primary"
+                disabled={!canGenerate || genStage === 'generating'}
+                onClick={handleGenerate}
               >
-                ↺ Reset and regenerate
+                {genStage === 'generating'
+                  ? 'Generating…'
+                  : genStage === 'done'
+                  ? 'Regenerate Drafts'
+                  : 'Generate Drafts →'}
               </Button>
-            </div>
-          )}
-          <Button
-            variant="primary"
-            disabled={!canGenerate || genStage === 'generating'}
-            onClick={handleGenerate}
-          >
-            {genStage === 'generating'
-              ? 'Generating…'
-              : genStage === 'done'
-              ? 'Regenerate Drafts'
-              : 'Generate Drafts →'}
-          </Button>
-          {!canGenerate && (
-            <Body style={{
-              color: palette.gray.dark1, marginTop: 8,
-              fontSize: 11, textAlign: 'center',
-            } as React.CSSProperties}>
-              Select audience, format, and tone to continue
-            </Body>
+              {!canGenerate && (
+                <Body style={{
+                  color: palette.gray.dark1, marginTop: 8,
+                  fontSize: 11, textAlign: 'center',
+                } as React.CSSProperties}>
+                  Select audience, format, and tone to continue
+                </Body>
+              )}
+            </>
           )}
         </div>
       </div>
 
-      {/* Right panel: live preview with LG Tabs */}
+      {/* Right panel */}
       <div style={{
-        flex: 1, display: 'flex', flexDirection: 'column',
-        overflow: 'hidden', background: palette.gray.light3,
+        flex: 1, overflowY: 'auto', background: palette.gray.light3,
       }}>
-        {/* @ts-ignore */}
-        <Tabs
-          setSelected={(i: number) => setActiveTab(ALL_TABS[i] ?? activeTab)}
-          selected={tabIdx < 0 ? 0 : tabIdx}
-        >
-          {FORMATS.map(f => (
-            // @ts-ignore
-            <Tab key={f.id} name={f.label}>
+
+        {/* Submitted confirmation */}
+        {submitted && renderSubmitted()}
+
+        {/* Idle: live preview, no tabs */}
+        {!submitted && genStage === 'idle' && (
+          <div style={{ padding: '28px 32px' }}>
+            <div style={{ maxWidth: 720, margin: '0 auto' }}>
+              {renderIdlePreview()}
+            </div>
+          </div>
+        )}
+
+        {/* Generating: progress panel, no tabs */}
+        {!submitted && genStage === 'generating' && (
+          <div style={{ padding: '28px 32px' }}>
+            <div style={{ maxWidth: 720, margin: '0 auto' }}>
+              {renderGenerating()}
+            </div>
+          </div>
+        )}
+
+        {/* Done: tabs filtered to selected formats only */}
+        {!submitted && genStage === 'done' && (
+          <>
+            {missingFmts.length > 0 && (
               <div style={{
-                padding: '28px 32px', overflowY: 'auto',
-                background: palette.gray.light3,
+                padding: '10px 24px',
+                background: palette.blue.light3,
+                borderBottom: `1px solid ${palette.blue.light2}`,
+                display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' as const,
               }}>
-                <div style={{ maxWidth: 720, margin: '0 auto' }}>
-                  {renderTabContent(f.id)}
-                </div>
+                <Body style={{ fontSize: 12, color: palette.blue.dark1 } as React.CSSProperties}>
+                  Showing {selectedFmts.length} of 3 formats.
+                </Body>
+                <Body style={{ fontSize: 12, color: palette.gray.dark1 } as React.CSSProperties}>
+                  To add {missingFmts.map(f => f.label).join(' or ')}, update your selections on the left and regenerate.
+                </Body>
               </div>
-            </Tab>
-          ))}
-        </Tabs>
+            )}
+            {/* @ts-ignore */}
+            <Tabs
+              setSelected={(i: number) => setActiveTab(selectedFmts[i]?.id ?? activeTab)}
+              selected={selectedTabIdx}
+            >
+              {selectedFmts.map(f => (
+                // @ts-ignore
+                <Tab key={f.id} name={f.label}>
+                  <div style={{ padding: '28px 32px', background: palette.gray.light3 }}>
+                    <div style={{ maxWidth: 720, margin: '0 auto' }}>
+                      {renderDoneContent(f.id)}
+                    </div>
+                  </div>
+                </Tab>
+              ))}
+            </Tabs>
+          </>
+        )}
+
       </div>
 
     </div>
@@ -637,6 +790,20 @@ export function SplitView() {
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function SummaryRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+      <span style={{
+        fontSize: 12, color: palette.gray.dark1, width: 72, flexShrink: 0,
+        paddingTop: 2, fontFamily: "'Euclid Circular A', sans-serif",
+      }}>
+        {label}
+      </span>
+      <div style={{ flex: 1 }}>{children}</div>
+    </div>
+  )
+}
 
 function SkeletonLines({ dim = false }: { dim?: boolean }) {
   const widths = ['92%', '78%', '88%', '65%', '82%', '55%']
