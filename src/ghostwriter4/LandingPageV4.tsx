@@ -13,6 +13,8 @@ const STAGE_CARDS = [
     label: 'Draft',
     badgeVariant: 'green' as const,
     accentColor: palette.green.dark1,
+    circleColor: palette.green.dark2,   // darker for AA contrast (white text needs 4.5:1)
+    circleTextColor: palette.white,
     bgColor: undefined,
     isException: false,
     involved: 'You + Ghostwriter AI',
@@ -28,6 +30,8 @@ const STAGE_CARDS = [
     label: 'In Review',
     badgeVariant: 'blue' as const,
     accentColor: palette.blue.dark1,
+    circleColor: palette.blue.dark1,
+    circleTextColor: palette.white,
     bgColor: undefined,
     isException: false,
     involved: 'MongoDB content reviewer',
@@ -43,6 +47,8 @@ const STAGE_CARDS = [
     label: 'Changes Requested',
     badgeVariant: 'yellow' as const,
     accentColor: '#C97F00',
+    circleColor: '#944F01',
+    circleTextColor: '#FFFFFF',
     bgColor: '#FFFBF0',
     isException: true,
     involved: 'You + reviewer (async)',
@@ -58,6 +64,8 @@ const STAGE_CARDS = [
     label: 'Denied',
     badgeVariant: 'red' as const,
     accentColor: palette.red,
+    circleColor: palette.red,
+    circleTextColor: palette.white,
     bgColor: '#FFF3F1',
     isException: true,
     involved: 'MongoDB content reviewer',
@@ -73,6 +81,8 @@ const STAGE_CARDS = [
     label: 'Approved',
     badgeVariant: 'green' as const,
     accentColor: palette.green.dark2,
+    circleColor: palette.green.dark2,
+    circleTextColor: palette.white,
     bgColor: undefined,
     isException: false,
     involved: 'You',
@@ -101,7 +111,7 @@ export function LandingPageV4({ onGetStarted }: { onGetStarted: () => void }) {
         {/* ── Hero ────────────────────────────────────────────────────────── */}
         <section style={{
           background: palette.black,
-          padding: '80px 48px 56px',
+          padding: '48px 48px 32px',
           textAlign: 'center',
         }}>
           <Overline style={{
@@ -162,7 +172,7 @@ export function LandingPageV4({ onGetStarted }: { onGetStarted: () => void }) {
                   {/* Step number circle — no direct LG equivalent */}
                   <div style={{
                     width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
-                    background: stage.accentColor, color: palette.white,
+                    background: stage.circleColor, color: stage.circleTextColor,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 13, fontWeight: 700, fontFamily: "'Euclid Circular A', sans-serif",
                   }}>
