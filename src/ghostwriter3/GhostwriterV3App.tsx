@@ -43,11 +43,11 @@ export function GhostwriterV3App() {
         {view === 'editor' && (
           <div style={{ display: 'flex', gap: 8 }}>
             <Button variant="default" onClick={() => setView('history')}>Package History</Button>
-            <Button variant="default" onClick={() => setView('landing')}>← Overview</Button>
+            <Button variant="default" onClick={() => setView('landing')}>Overview</Button>
           </div>
         )}
         {view === 'history' && (
-          <Button variant="default" onClick={() => setView('editor')}>← Back to Editor</Button>
+          <Button variant="default" onClick={() => setView('editor')}>Back to Editor</Button>
         )}
       </nav>
 

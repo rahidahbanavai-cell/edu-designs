@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Button } from '@leafygreen-ui/button'
-import { Badge } from '@leafygreen-ui/badge'
 import { Card } from '@leafygreen-ui/card'
-import { H1, H2, H3, Body, Overline } from '@leafygreen-ui/typography'
+import { H1, H2, H3, Body, Overline, Label } from '@leafygreen-ui/typography'
 import { Stepper, Step } from '@leafygreen-ui/stepper'
+import Icon from '@leafygreen-ui/icon'
 import { palette } from '../tokens'
 
 // ─── Pipeline data ────────────────────────────────────────────────────────────
@@ -69,17 +69,17 @@ const STEPS = [
 
 const HOW_IT_WORKS = [
   {
-    icon: '✏️',
+    glyph: 'Edit',
     title: 'Configure',
     desc: 'Set your campaign name, target audience, output formats, and tone. Ghostwriter adapts every draft to your exact specifications.',
   },
   {
-    icon: '⚡',
+    glyph: 'LightningBolt',
     title: 'Preview & Generate',
     desc: 'A live preview updates as you type. When you\'re ready, generate full polished drafts for all selected formats at once.',
   },
   {
-    icon: '✅',
+    glyph: 'CheckmarkWithCircle',
     title: 'Review & Approve',
     desc: 'Every draft goes through a human review before it reaches your audience — ensuring quality, accuracy, and brand alignment.',
   },
@@ -113,7 +113,7 @@ export function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
           textAlign: 'center', background: palette.white,
         }}>
           <div className="gw3-animate" style={{ marginBottom: 16 }}>
-            <Badge variant="green">AI-powered · MongoDB</Badge>
+            <Overline style={{ color: '#00684A' }}>AI-powered · MongoDB</Overline>
           </div>
           <H1 className="gw3-animate" style={{ maxWidth: 640, marginBottom: 20, animationDelay: '0.05s' }}>
             Create polished content, every time.
@@ -127,7 +127,7 @@ export function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
           </Body>
           <div className="gw3-animate" style={{ display: 'flex', gap: 12, animationDelay: '0.15s' }}>
             <Button variant="primary" onClick={onGetStarted}>
-              Get started →
+              Get started
             </Button>
             <Button variant="default" onClick={openModal}>
               How it works
@@ -208,7 +208,7 @@ export function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
                     <Body style={{ fontWeight: 600, color: branch.color, marginBottom: 4 } as React.CSSProperties}>
                       {branch.label}
                     </Body>
-                    <Body style={{ fontSize: 12, color: palette.gray.dark1, marginBottom: 6, lineHeight: 1.55 } as React.CSSProperties}>
+                    <Body style={{ fontSize: 12, color: palette.gray.dark3, marginBottom: 6, lineHeight: 1.55 } as React.CSSProperties}>
                       {branch.desc}
                     </Body>
                     <Body style={{ fontSize: 11, color: branch.color, fontStyle: 'italic' } as React.CSSProperties}>
@@ -237,18 +237,19 @@ export function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
                     width: 40, height: 40, borderRadius: 10,
                     background: palette.green.light3,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 20, marginBottom: 16,
+                    marginBottom: 16,
                   }}>
-                    {item.icon}
+                    <Icon glyph={item.glyph} fill={palette.green.dark2} size={20} />
                   </div>
                   <div style={{
                     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                     width: 22, height: 22, borderRadius: '50%',
-                    background: palette.green.dark1, color: palette.white,
-                    fontSize: 11, fontWeight: 700, marginBottom: 10,
-                    fontFamily: "'Euclid Circular A', sans-serif",
+                    background: palette.green.dark2,
+                    marginBottom: 10,
                   }}>
-                    {i + 1}
+                    <Label style={{ color: palette.white, margin: 0, lineHeight: 1 } as React.CSSProperties}>
+                      {i + 1}
+                    </Label>
                   </div>
                   <H3 style={{ marginBottom: 8 }}>{item.title}</H3>
                   <Body style={{ color: palette.gray.dark1, fontSize: 13, lineHeight: 1.65 } as React.CSSProperties}>
@@ -412,7 +413,7 @@ function StepIllustration1() {
         <span>AI Native Developer Campaign — Q2 2026</span>
         <div style={{ width: 2, height: 16, background: palette.green.dark1, animation: 'none' }} />
       </div>
-      <div style={{ fontSize: 11, color: palette.gray.base, fontFamily: 'inherit' }}>
+      <div style={{ fontSize: 11, color: palette.gray.dark1, fontFamily: 'inherit' }}>
         e.g. Atlas Search Launch · Q3 2026
       </div>
     </div>
@@ -547,7 +548,7 @@ function StepIllustration5() {
         display: 'flex', gap: 8,
       }}>
         <div style={{ padding: '6px 14px', borderRadius: 5, border: `1px solid ${palette.gray.light2}`, fontSize: 11, color: palette.gray.dark1, fontFamily: 'inherit' }}>Download draft</div>
-        <div style={{ padding: '6px 14px', borderRadius: 5, background: palette.green.dark1, fontSize: 11, color: palette.white, fontWeight: 600, fontFamily: 'inherit' }}>Submit for Review →</div>
+        <div style={{ padding: '6px 14px', borderRadius: 5, background: palette.green.dark2, fontSize: 11, color: palette.white, fontWeight: 600, fontFamily: 'inherit' }}>Submit for Review →</div>
       </div>
     </div>
   )

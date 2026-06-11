@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from 'react'
 import { Button }    from '@leafygreen-ui/button'
 import { Badge }     from '@leafygreen-ui/badge'
+import { Chip }      from '@leafygreen-ui/chip'
 import { Card }      from '@leafygreen-ui/card'
 import { TextInput } from '@leafygreen-ui/text-input'
 import { TextArea }  from '@leafygreen-ui/text-area'
 import { Tabs, Tab } from '@leafygreen-ui/tabs'
 import { Stepper, Step } from '@leafygreen-ui/stepper'
 import { Banner } from '@leafygreen-ui/banner'
-import { Label, Body, H2 } from '@leafygreen-ui/typography'
+import { Label, Body, H2, Overline } from '@leafygreen-ui/typography'
 import { palette }   from '../tokens'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -356,8 +357,8 @@ export function SplitView({ onViewHistory }: { onViewHistory?: () => void }) {
 
         <Card style={{ padding: '36px 40px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-            <Badge variant={previewFmt.badge}>{previewFmt.label}</Badge>
-            <Badge variant="lightgray">Live Preview</Badge>
+            {/* @ts-ignore */}
+            <Chip label={previewFmt.label} variant={previewFmt.badge} />
           </div>
 
           {/* Title row — top-right visual sits beside the title */}
@@ -447,10 +448,11 @@ export function SplitView({ onViewHistory }: { onViewHistory?: () => void }) {
   // ── Generating panel (no tabs) ────────────────────────────────────────────
 
   const renderGenerating = () => (
-    <Card style={{ padding: '36px 40px' }}>
-      <div style={{ marginBottom: 20 }}>
-        <Badge variant="yellow">Generating</Badge>
-      </div>
+    <>
+      <Overline style={{ display: 'block', marginBottom: 16, color: palette.gray.dark1 }}>
+        Generating…
+      </Overline>
+      <Card style={{ padding: '36px 40px' }}>
       <H2 style={{ marginBottom: 24 }}>{titleText}</H2>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
         {FORMATS.filter(f => form.outputTypes.includes(f.id)).map(f => {
@@ -479,6 +481,7 @@ export function SplitView({ onViewHistory }: { onViewHistory?: () => void }) {
         }} />
       </div>
     </Card>
+    </>
   )
 
   // ── Done content per tab ──────────────────────────────────────────────────
@@ -551,7 +554,8 @@ export function SplitView({ onViewHistory }: { onViewHistory?: () => void }) {
         <Card style={{ padding: '36px 40px' }}>
           <div ref={el => { doneCardRefs.current[tabId] = el }} style={{ background: palette.white }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-              <Badge variant={fmt.badge}>{fmt.label}</Badge>
+              {/* @ts-ignore */}
+              <Chip label={fmt.label} variant={fmt.badge} />
               <Badge variant="green">Ready for review</Badge>
             </div>
 
@@ -643,7 +647,8 @@ export function SplitView({ onViewHistory }: { onViewHistory?: () => void }) {
               </SummaryRow>
               <SummaryRow label="Formats">
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
-                  {selectedFmts.map(f => <Badge key={f.id} variant={f.badge}>{f.label}</Badge>)}
+                  {/* @ts-ignore */}
+                  {selectedFmts.map(f => <Chip key={f.id} label={f.label} variant={f.badge} />)}
                 </div>
               </SummaryRow>
               {audience && (
@@ -914,39 +919,25 @@ export function SplitView({ onViewHistory }: { onViewHistory?: () => void }) {
             <Button variant="primary" onClick={handleReset}>
               Start New Package
             </Button>
-          ) : (
+          ) : genStage !== 'done' ? (
             <>
-              {genStage === 'done' && (
-                <div style={{ marginBottom: 8 }}>
-                  <Button
-                    variant="default"
-                    onClick={() => { setGenStage('idle'); setProgress(0) }}
-                  >
-                    ↺ Reset and regenerate
-                  </Button>
-                </div>
-              )}
               <Button
                 variant="primary"
                 disabled={!canGenerate || genStage === 'generating'}
                 onClick={handleGenerate}
               >
-                {genStage === 'generating'
-                  ? 'Generating…'
-                  : genStage === 'done'
-                  ? 'Regenerate Drafts'
-                  : 'Generate Drafts →'}
+                {genStage === 'generating' ? 'Generating…' : 'Generate Drafts →'}
               </Button>
               {!canGenerate && (
                 <Body style={{
                   color: palette.gray.dark1, marginTop: 8,
                   fontSize: 11, textAlign: 'center',
                 } as React.CSSProperties}>
-                  Select audience, format, and tone to continue
+                  Select audience, format, tone, and visual design to continue
                 </Body>
               )}
             </>
-          )}
+          ) : null}
         </div>
       </div>
 
@@ -990,7 +981,7 @@ export function SplitView({ onViewHistory }: { onViewHistory?: () => void }) {
                   Showing {selectedFmts.length} of 3 formats.
                 </Body>
                 <Body style={{ fontSize: 12, color: palette.gray.dark1 } as React.CSSProperties}>
-                  To add {missingFmts.map(f => f.label).join(' or ')}, update your selections on the left and regenerate.
+                  To add {missingFmts.map(f => f.label).join(' or ')}, update your selections on the left.
                 </Body>
               </div>
             )}
