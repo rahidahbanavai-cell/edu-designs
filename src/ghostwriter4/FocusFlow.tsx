@@ -536,7 +536,7 @@ export function FocusFlow({ onViewHistory }: { onViewHistory?: () => void } = {}
         </div>
         {onViewHistory && (
           <div style={{ position: 'absolute', top: 16, right: 32 }}>
-            <Button variant="default" onClick={onViewHistory}>View Package History →</Button>
+            <Button variant="default" onClick={onViewHistory}>View Package History</Button>
           </div>
         )}
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
