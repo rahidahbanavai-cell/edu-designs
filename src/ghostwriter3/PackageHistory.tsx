@@ -1,9 +1,13 @@
 import { useState } from 'react'
 import { Button }       from '@leafygreen-ui/button'
 import { Badge }        from '@leafygreen-ui/badge'
+// @ts-ignore
+import { Chip }         from '@leafygreen-ui/chip'
 import { Card }         from '@leafygreen-ui/card'
 import { Stepper, Step } from '@leafygreen-ui/stepper'
-import { H2, H3, Body, Overline } from '@leafygreen-ui/typography'
+// @ts-ignore
+import { Tabs, Tab } from '@leafygreen-ui/tabs'
+import { H2, H3, Body, Overline, Label } from '@leafygreen-ui/typography'
 import { palette } from '../tokens'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -103,6 +107,20 @@ const INITIAL_PACKAGES: Pkg[] = [
   },
 ]
 
+const AGENTIC_LINKEDIN_DRAFT_BEFORE = `🧵 The shift toward agentic AI is real — and MongoDB Atlas is built for it.
+
+1/ Agentic systems don't just respond. They plan, execute, and iterate across multi-step workflows. That changes what your database needs to do.
+
+2/ Most teams hit the same wall: vector data lives in one place, operational data lives in another. Two pipelines. Two monitoring dashboards. Two sources of drift.
+
+3/ Atlas Vector Search keeps your embeddings co-located with your documents — same cluster, same queries, same operational model. No sync jobs. No extra infra.`
+
+const AGENTIC_LINKEDIN_DRAFT_AFTER = `4/ The result? Faster retrieval, lower latency, and agents that produce more accurate outputs because context is always current.
+
+5/ We put together a full Agentic Apps Playbook — architecture patterns, Atlas setup, and real production examples.
+
+🔗 Read the full guide → [link]`
+
 const AGENTIC_DRAFT_SEGMENTS: DraftSegment[] = [
   { type: 'text',      text: 'Building Agentic Applications with MongoDB Atlas\n\nThe shift toward agentic AI architectures is accelerating. Modern AI systems don\'t just respond to prompts — they plan, execute, and iterate. ' },
   { type: 'highlight', text: 'Agents can autonomously execute multi-step workflows without human intervention', commentIdx: 0 },
@@ -124,16 +142,16 @@ const STATUS_CONFIG: Record<PkgStatus, {
   headerColor: string
   icon: string
 }> = {
-  'approved':          { label: 'Approved',           badge: 'green',  headerBg: palette.green.light3, headerBorder: palette.green.dark1, headerColor: palette.green.dark2, icon: '✓' },
-  'in-review':         { label: 'In Review',           badge: 'yellow', headerBg: '#FEF3C7',            headerBorder: '#F59E0B',          headerColor: '#92400E',           icon: '○' },
-  'denied':            { label: 'Denied',              badge: 'red',    headerBg: '#FEE2E2',            headerBorder: '#EF4444',          headerColor: '#991B1B',           icon: '✕' },
-  'changes-requested': { label: 'Changes Requested',  badge: 'blue',   headerBg: palette.blue.light3,  headerBorder: palette.blue.base,  headerColor: palette.blue.dark1,  icon: '↩' },
+  'approved':          { label: 'Approved',           badge: 'green',  headerBg: palette.white, headerBorder: palette.green.dark1, headerColor: palette.green.dark2, icon: '✓' },
+  'in-review':         { label: 'In Review',           badge: 'yellow', headerBg: palette.white, headerBorder: '#F59E0B',          headerColor: '#92400E',           icon: '○' },
+  'denied':            { label: 'Denied',              badge: 'red',    headerBg: palette.white, headerBorder: '#EF4444',          headerColor: '#991B1B',           icon: '✕' },
+  'changes-requested': { label: 'Changes Requested',  badge: 'blue',   headerBg: palette.white, headerBorder: palette.blue.base,  headerColor: palette.blue.dark1,  icon: '↩' },
 }
 
-const COMMENT_TYPE_CONFIG: Record<ReviewComment['type'], { label: string; badge: 'yellow' | 'blue' | 'red' }> = {
-  'clarify':    { label: 'Clarify',     badge: 'yellow' },
-  'fact-check': { label: 'Fact-check',  badge: 'blue'   },
-  'remove':     { label: 'Remove',      badge: 'red'    },
+const COMMENT_TYPE_CONFIG: Record<ReviewComment['type'], { label: string; color: string }> = {
+  'clarify':    { label: 'Clarify',    color: '#001E2B' },
+  'fact-check': { label: 'Fact-check', color: '#001E2B' },
+  'remove':     { label: 'Remove',     color: '#001E2B' },
 }
 
 // ─── PackageHistory ───────────────────────────────────────────────────────────
@@ -178,7 +196,7 @@ export function PackageHistory({ onBack }: { onBack: () => void }) {
             PACKAGE HISTORY
           </Overline>
           <Body style={{ fontSize: 13, color: palette.gray.dark1 } as React.CSSProperties}>
-            {packages.length} packages · click to view details
+            {packages.length} packages
           </Body>
         </div>
 
@@ -269,7 +287,10 @@ function DetailApproved({ pkg }: { pkg: Pkg }) {
       <Card style={{ padding: '20px 24px' }}>
         <Overline style={{ display: 'block', marginBottom: 12, color: palette.gray.dark1 }}>APPROVED FORMATS</Overline>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const, marginBottom: 16 }}>
-          {pkg.formats.map(f => <Badge key={f} variant="green">{f}</Badge>)}
+          {pkg.formats.map(f => (
+            // @ts-ignore
+            <Chip key={f} label={f} variant="green" />
+          ))}
         </div>
         <Body style={{ fontSize: 12, color: palette.gray.dark1, lineHeight: 1.6 } as React.CSSProperties}>
           Your approved content is ready to share. Download your drafts and distribute them to your audience.
@@ -333,110 +354,136 @@ function DetailChanges({ pkg, submitting, onResubmit }: { pkg: Pkg; submitting: 
         </Card>
       )}
 
-      {/* Draft with inline highlights */}
-      <Card style={{ padding: '28px 32px', marginBottom: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <Overline style={{ color: palette.gray.dark1 }}>DRAFT — Blog Post</Overline>
-          <Badge variant="blue">{comments.length} comment{comments.length !== 1 ? 's' : ''}</Badge>
-        </div>
+      {/* Draft tabs — one per selected format, reviewer comments inside each tab */}
+      {/* @ts-ignore */}
+      <Tabs>
+        {pkg.formats.map((fmt, fi) => (
+          // @ts-ignore
+          <Tab key={fmt} name={fmt}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20, paddingTop: 4 }}>
 
-        <div style={{ lineHeight: 1.9, color: palette.gray.dark1, fontSize: 13, fontFamily: "'Euclid Circular A', sans-serif" }}>
-          {AGENTIC_DRAFT_SEGMENTS.map((seg, i) => {
-            if (seg.type === 'text') {
-              return <span key={i} style={{ whiteSpace: 'pre-wrap' as const }}>{seg.text}</span>
-            }
-            if (seg.type === 'visual-placeholder') {
-              return (
-                <div key={i} style={{
-                  margin: '20px 0',
-                  border: `1.5px dashed ${palette.gray.light1}`,
-                  borderRadius: 10, background: palette.gray.light3,
-                  display: 'flex', flexDirection: 'column', alignItems: 'center',
-                  justifyContent: 'center', gap: 8, padding: '28px 24px',
-                }}>
-                  <div style={{
-                    width: 40, height: 40, borderRadius: 8,
-                    border: `1.5px dashed ${palette.gray.base}`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 18, color: palette.gray.base,
-                  }}>
-                    🖼
-                  </div>
-                  <span style={{ fontSize: 12, color: palette.gray.dark1 }}>Visual design placeholder</span>
-                  <span style={{ fontSize: 11, color: palette.gray.base }}>Final visual asset placed here after approval</span>
+              {/* Draft card */}
+              <Card style={{ padding: '28px 32px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                  <Overline style={{ color: palette.gray.dark1 }}>DRAFT — {fmt}</Overline>
+                  {fi === 0 && <Badge variant="blue">{comments.length} comment{comments.length !== 1 ? 's' : ''}</Badge>}
                 </div>
-              )
-            }
-            return (
-              <span key={i} style={{ position: 'relative' as const }}>
-                <mark style={{
-                  background: '#FEF3C7', borderRadius: 3, padding: '1px 2px',
-                  borderBottom: '2px solid #F59E0B',
-                }}>
-                  {seg.text}
-                </mark>
-                <sup style={{
-                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                  width: 15, height: 15, borderRadius: '50%',
-                  background: '#F59E0B', color: palette.white,
-                  fontSize: 9, fontWeight: 700, marginLeft: 2, verticalAlign: 'super',
-                  fontFamily: "'Euclid Circular A', sans-serif",
-                }}>
-                  {seg.commentIdx + 1}
-                </sup>
-              </span>
-            )
-          })}
-        </div>
-      </Card>
 
-      {/* Reviewer comments */}
-      <Card style={{ padding: '20px 24px', marginBottom: 24 }}>
-        <Overline style={{ display: 'block', marginBottom: 14, color: palette.gray.dark1 }}>REVIEWER COMMENTS</Overline>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {comments.map((c, i) => {
-            const typeCfg = COMMENT_TYPE_CONFIG[c.type]
-            return (
-              <div key={c.id} style={{
-                display: 'flex', gap: 12, alignItems: 'flex-start',
-                paddingBottom: i < comments.length - 1 ? 14 : 0,
-                borderBottom: i < comments.length - 1 ? `1px solid ${palette.gray.light2}` : 'none',
-              }}>
-                {/* Number badge */}
-                <div style={{
-                  width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
-                  background: '#F59E0B', color: palette.white,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 11, fontWeight: 700, marginTop: 2,
-                  fontFamily: "'Euclid Circular A', sans-serif",
-                }}>
-                  {i + 1}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                    <Badge variant={typeCfg.badge}>{typeCfg.label}</Badge>
+                {fi === 0 ? (
+                  <div style={{ lineHeight: 1.9, color: palette.gray.dark1, fontSize: 13, fontFamily: "'Euclid Circular A', sans-serif" }}>
+                    {AGENTIC_DRAFT_SEGMENTS.map((seg, i) => {
+                      if (seg.type === 'text') {
+                        return <span key={i} style={{ whiteSpace: 'pre-wrap' as const }}>{seg.text}</span>
+                      }
+                      if (seg.type === 'visual-placeholder') {
+                        return (
+                          <div key={i} style={{
+                            margin: '20px 0',
+                            border: `1.5px dashed ${palette.gray.light1}`,
+                            borderRadius: 10, background: palette.gray.light3,
+                            display: 'flex', flexDirection: 'column', alignItems: 'center',
+                            justifyContent: 'center', gap: 8, padding: '28px 24px',
+                          }}>
+                            <div style={{
+                              width: 40, height: 40, borderRadius: 8,
+                              border: `1.5px dashed ${palette.gray.base}`,
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              fontSize: 18, color: palette.gray.base,
+                            }}>
+                              🖼
+                            </div>
+                            <span style={{ fontSize: 12, color: palette.gray.dark1 }}>Visual design placeholder</span>
+                            <span style={{ fontSize: 11, color: palette.gray.base }}>Final visual asset placed here after approval</span>
+                          </div>
+                        )
+                      }
+                      return (
+                        <mark key={i} style={{
+                          background: '#FEF3C7', borderRadius: 3, padding: '1px 2px',
+                          borderBottom: '2px solid #F59E0B',
+                        }}>
+                          {seg.text}
+                        </mark>
+                      )
+                    })}
                   </div>
-                  <Body style={{
-                    fontStyle: 'italic', color: palette.gray.dark1,
-                    fontSize: 12, marginBottom: 6, lineHeight: 1.5,
-                    background: '#FEF9C3', padding: '4px 8px', borderRadius: 4,
-                    display: 'block',
-                  } as React.CSSProperties}>
-                    "{c.highlight}"
+                ) : (
+                  <>
+                    <Body style={{ lineHeight: 1.9, color: palette.gray.dark1, fontSize: 13, whiteSpace: 'pre-wrap' } as React.CSSProperties}>
+                      {AGENTIC_LINKEDIN_DRAFT_BEFORE}
+                    </Body>
+                    <div style={{
+                      margin: '20px 0',
+                      border: `1.5px dashed ${palette.gray.light1}`,
+                      borderRadius: 10, background: palette.gray.light3,
+                      display: 'flex', flexDirection: 'column', alignItems: 'center',
+                      justifyContent: 'center', gap: 8, padding: '28px 24px',
+                    }}>
+                      <div style={{
+                        width: 40, height: 40, borderRadius: 8,
+                        border: `1.5px dashed ${palette.gray.base}`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 18, color: palette.gray.base,
+                      }}>
+                        🖼
+                      </div>
+                      <span style={{ fontSize: 12, color: palette.gray.dark1 }}>Visual design placeholder</span>
+                      <span style={{ fontSize: 11, color: palette.gray.base }}>Final visual asset placed here after approval</span>
+                    </div>
+                    <Body style={{ lineHeight: 1.9, color: palette.gray.dark1, fontSize: 13, whiteSpace: 'pre-wrap' } as React.CSSProperties}>
+                      {AGENTIC_LINKEDIN_DRAFT_AFTER}
+                    </Body>
+                  </>
+                )}
+              </Card>
+
+              {/* Reviewer comments — scoped to this tab */}
+              <Card style={{ padding: '20px 24px', marginBottom: 4 }}>
+                <Overline style={{ display: 'block', marginBottom: 14, color: palette.gray.dark1 }}>REVIEWER COMMENTS</Overline>
+                {fi === 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                    {comments.map((c, i) => {
+                      const typeCfg = COMMENT_TYPE_CONFIG[c.type]
+                      return (
+                        <div key={c.id} style={{
+                          paddingBottom: i < comments.length - 1 ? 14 : 0,
+                          borderBottom: i < comments.length - 1 ? `1px solid ${palette.gray.light2}` : 'none',
+                        }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ marginBottom: 6 }}>
+                              <Label style={{ color: typeCfg.color }}>{i + 1}. {typeCfg.label}</Label>
+                            </div>
+                            <Body style={{
+                              fontStyle: 'italic', color: palette.gray.dark1,
+                              fontSize: 12, marginBottom: 6, lineHeight: 1.5,
+                              background: '#FEF9C3', padding: '4px 8px', borderRadius: 4,
+                              display: 'block',
+                            } as React.CSSProperties}>
+                              "{c.highlight}"
+                            </Body>
+                            <Body style={{ fontSize: 12, color: palette.black, lineHeight: 1.6 } as React.CSSProperties}>
+                              {c.comment}
+                            </Body>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <Body style={{ fontSize: 13, color: palette.gray.dark1 } as React.CSSProperties}>
+                    No reviewer comments for this format.
                   </Body>
-                  <Body style={{ fontSize: 12, color: palette.black, lineHeight: 1.6 } as React.CSSProperties}>
-                    {c.comment}
-                  </Body>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      </Card>
+                )}
+              </Card>
+
+            </div>
+          </Tab>
+        ))}
+      </Tabs>
 
       {/* Resubmit action */}
       <div style={{
-        padding: '20px 24px', borderRadius: 10,
+        marginTop: 24, padding: '20px 24px', borderRadius: 10,
         background: palette.blue.light3, border: `1px solid ${palette.blue.light2}`,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
       }}>
@@ -516,12 +563,8 @@ function StatusHeader({ cfg, pkg }: {
           <H3 style={{ color: palette.black, marginBottom: 4 }}>{pkg.name}</H3>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const, marginBottom: 10 }}>
             {pkg.formats.map(f => (
-              <span key={f} style={{
-                fontSize: 11, padding: '2px 8px', borderRadius: 4,
-                background: 'rgba(255,255,255,0.7)', color: palette.gray.dark1,
-                border: `1px solid ${cfg.headerBorder}`,
-                fontFamily: "'Euclid Circular A', sans-serif",
-              }}>{f}</span>
+              // @ts-ignore
+              <Chip key={f} label={f} variant="gray" />
             ))}
           </div>
           <Body style={{ fontSize: 12, color: cfg.headerColor } as React.CSSProperties}>
