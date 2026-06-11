@@ -521,7 +521,24 @@ export function FocusFlow({ onViewHistory }: { onViewHistory?: () => void } = {}
     const tabContents: Record<string, string> = { blog: FULL_BLOG, linkedin: FULL_LINKEDIN, email: FULL_EMAIL }
 
     return (
-      <div style={{ flex: 1, overflowY: 'auto', padding: '80px 32px 48px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '80px 32px 48px', position: 'relative' }}>
+        <div style={{ position: 'absolute', top: 16, left: 32 }}>
+          <Button variant="default" onClick={() => {
+            setPhase('form')
+            setActiveStep(0)
+            setHighestReached(0)
+            setForm(defaultForm)
+            setSubmitted(false)
+            setActiveTab(0)
+          }}>
+            ← Start over
+          </Button>
+        </div>
+        {onViewHistory && (
+          <div style={{ position: 'absolute', top: 16, right: 32 }}>
+            <Button variant="default" onClick={onViewHistory}>View Package History →</Button>
+          </div>
+        )}
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
           {/* Live preview banner */}
           <Banner variant="info" style={{ marginBottom: 24 }}>
@@ -531,7 +548,7 @@ export function FocusFlow({ onViewHistory }: { onViewHistory?: () => void } = {}
           {/* Summary */}
           <div style={{
             background: palette.gray.light3, borderRadius: 8, padding: '14px 20px',
-            display: 'flex', flexWrap: 'wrap' as const, gap: 0, alignItems: 'stretch', marginBottom: 28,
+            display: 'flex', flexWrap: 'wrap' as const, gap: 0, alignItems: 'stretch', justifyContent: 'center', marginBottom: 28,
           }}>
             {[
               { label: 'Package', value: form.name || 'Untitled package' },
@@ -557,11 +574,18 @@ export function FocusFlow({ onViewHistory }: { onViewHistory?: () => void } = {}
             {!submitted ? (
               <Button variant="primary" onClick={() => setSubmitted(true)}>Submit for Review →</Button>
             ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <Badge variant="green">✓ Submitted for review</Badge>
-                {onViewHistory && (
-                  <Button variant="default" size="small" onClick={onViewHistory}>View Package History →</Button>
-                )}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{
+                    width: 18, height: 18, borderRadius: '50%', background: palette.green.dark1,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                  }}>
+                    <span style={{ color: palette.white, fontSize: 10, fontWeight: 700 }}>✓</span>
+                  </div>
+                  <Body style={{ color: palette.green.dark2, fontWeight: 600, margin: 0 } as React.CSSProperties}>
+                    Submitted for review
+                  </Body>
+                </div>
               </div>
             )}
           </div>
@@ -585,19 +609,6 @@ export function FocusFlow({ onViewHistory }: { onViewHistory?: () => void } = {}
             </Tabs>
           </Card>
 
-          {/* Footer */}
-          <div style={{ paddingTop: 24 }}>
-            <Button variant="default" onClick={() => {
-              setPhase('form')
-              setActiveStep(0)
-              setHighestReached(0)
-              setForm(defaultForm)
-              setSubmitted(false)
-              setActiveTab(0)
-            }}>
-              ← Start over
-            </Button>
-          </div>
         </div>
       </div>
     )
@@ -606,18 +617,16 @@ export function FocusFlow({ onViewHistory }: { onViewHistory?: () => void } = {}
   // ─── Form phase ───────────────────────────────────────────────────────────
 
   return (
-    <div style={{ flex: 1, overflowY: 'auto', background: palette.white }}>
+    <div style={{ flex: 1, overflowY: 'auto', background: palette.white, position: 'relative' }}>
+      {onViewHistory && (
+        <div style={{ position: 'absolute', top: 16, right: 32 }}>
+          <Button variant="default" onClick={onViewHistory}>Package History</Button>
+        </div>
+      )}
       <div style={{ maxWidth: 620, margin: '0 auto', padding: '72px 24px 64px' }}>
 
         <div style={{ marginBottom: 32 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-            <H2 style={{ margin: 0 }}>Create a content package</H2>
-            {onViewHistory && (
-              <Button variant="default" size="small" onClick={onViewHistory}>
-                Package History →
-              </Button>
-            )}
-          </div>
+          <H2 style={{ margin: '0 0 8px' }}>Create a content package</H2>
           <Body style={{ color: palette.gray.dark1 } as React.CSSProperties}>
             Complete each step to configure your package. You can go back and edit any step at any time.
           </Body>

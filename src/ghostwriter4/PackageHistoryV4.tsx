@@ -205,15 +205,29 @@ export function PackageHistoryV4({ onBack }: { onBack: () => void }) {
         {/* Package header */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24 }}>
           <div>
-            <H2 style={{ marginBottom: 8 }}>{selected.name}</H2>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <H2 style={{ margin: 0 }}>{selected.name}</H2>
               <Badge variant={meta.badgeVariant}>{meta.label}</Badge>
-              <Badge variant="blue">{selected.audience}</Badge>
-              {selected.formats.map(f => <Badge key={f} variant="lightgray">{f}</Badge>)}
-              {selected.hasVisual && <Badge variant="green">Visual Design</Badge>}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'stretch', gap: 0 }}>
+              {[
+                { label: 'Audience', value: selected.audience },
+                { label: 'Formats', value: selected.formats.join(', ') },
+                ...(selected.hasVisual ? [{ label: 'Visual Design', value: 'Included' }] : []),
+              ].map((item, i, arr) => (
+                <div key={item.label} style={{
+                  display: 'flex', flexDirection: 'column' as const, gap: 3,
+                  paddingRight: i < arr.length - 1 ? 20 : 0,
+                  marginRight: i < arr.length - 1 ? 20 : 0,
+                  borderRight: i < arr.length - 1 ? `1px solid ${palette.gray.light1}` : 'none',
+                }}>
+                  <Overline style={{ display: 'block', color: palette.gray.dark1, fontWeight: 700 } as React.CSSProperties}>{item.label}</Overline>
+                  <Body style={{ color: palette.black, fontWeight: 500, margin: 0 } as React.CSSProperties}>{item.value}</Body>
+                </div>
+              ))}
             </div>
           </div>
-          <Button variant="default" size="small" onClick={onBack}>← Back to Editor</Button>
+          <Button variant="default" onClick={onBack}>Back to Editor</Button>
         </div>
 
         {/* Status banner */}
