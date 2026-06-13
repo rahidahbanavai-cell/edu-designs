@@ -170,7 +170,7 @@ export function PackageHistory({ onBack }: { onBack: () => void }) {
     setTimeout(() => {
       setPackages(prev =>
         prev.map(p => p.id === selected.id
-          ? { ...p, status: 'in-review', reviewedAt: undefined }
+          ? { ...p, status: 'approved', reviewedAt: 'Jun 11, 2026' }
           : p
         )
       )

@@ -20,6 +20,7 @@
     "@leafygreen-ui/icon-button": "^17.1.5",
     "@leafygreen-ui/leafygreen-provider": "^5.0.4",
     "@leafygreen-ui/logo": "^11.1.0",
+    "@leafygreen-ui/skeleton-loader": "^3.0.11",
     "@leafygreen-ui/stepper": "^6.1.5",
     "@leafygreen-ui/tabs": "^17.0.11",
     "@leafygreen-ui/text-area": "^12.1.5",

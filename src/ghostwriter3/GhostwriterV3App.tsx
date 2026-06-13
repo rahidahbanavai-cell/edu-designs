@@ -40,6 +40,9 @@ export function GhostwriterV3App() {
         </button>
         {view === 'editor' && <Badge variant="blue" style={{ marginLeft: 8 }}>Live Preview</Badge>}
         <div style={{ flex: 1 }} />
+        {view === 'landing' && (
+          <Button variant="default" onClick={() => setView('history')}>Package History</Button>
+        )}
         {view === 'editor' && (
           <div style={{ display: 'flex', gap: 8 }}>
             <Button variant="default" onClick={() => setView('history')}>Package History</Button>
