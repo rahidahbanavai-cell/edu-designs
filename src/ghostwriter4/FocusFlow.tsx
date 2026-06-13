@@ -387,6 +387,7 @@ export function FocusFlow({ onViewHistory }: { onViewHistory?: () => void } = {}
                         <Body style={{ fontWeight: 600, color: on ? palette.black : palette.gray.dark1, margin: '0 0 4px' } as React.CSSProperties}>{p.label}</Body>
                         <Body style={{ fontSize: 12, color: palette.gray.dark1, lineHeight: 1.4, margin: 0 } as React.CSSProperties}>{p.desc}</Body>
                       </div>
+                      <PlacementDiagram id={p.id} />
                     </ToggleCard>
                   )
                 })}
@@ -536,7 +537,7 @@ export function FocusFlow({ onViewHistory }: { onViewHistory?: () => void } = {}
         </div>
         {onViewHistory && (
           <div style={{ position: 'absolute', top: 16, right: 32 }}>
-            <Button variant="default" onClick={onViewHistory}>View Package History →</Button>
+            <Button variant="default" onClick={onViewHistory}>View Package History</Button>
           </div>
         )}
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
@@ -618,11 +619,6 @@ export function FocusFlow({ onViewHistory }: { onViewHistory?: () => void } = {}
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', background: palette.white, position: 'relative' }}>
-      {onViewHistory && (
-        <div style={{ position: 'absolute', top: 16, right: 32 }}>
-          <Button variant="default" onClick={onViewHistory}>Package History</Button>
-        </div>
-      )}
       <div style={{ maxWidth: 620, margin: '0 auto', padding: '72px 24px 64px' }}>
 
         <div style={{ marginBottom: 32 }}>
@@ -774,6 +770,53 @@ function CheckCircle({ checked, style }: { checked: boolean; style?: React.CSSPr
       transition: 'all 0.15s', ...style,
     }}>
       {checked && <span style={{ color: palette.white, fontSize: 10, fontWeight: 700 }}>✓</span>}
+    </div>
+  )
+}
+
+function PlacementDiagram({ id }: { id: 'middle' | 'below-text' | 'top-right' }) {
+  const textLine = (width = '100%') => (
+    <div style={{ height: 4, borderRadius: 2, background: '#C1C7C6', marginBottom: 3, width }} />
+  )
+  const imgBlock = (style?: React.CSSProperties) => (
+    <div style={{
+      borderRadius: 3, background: '#E8EDEB',
+      border: '1px dashed #889397',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: 9, color: '#5C6C75',
+      ...style,
+    }}>🖼</div>
+  )
+
+  const containerStyle: React.CSSProperties = {
+    width: 72, height: 60, flexShrink: 0,
+    background: '#F9FBFA', borderRadius: 6,
+    border: '1px solid #E8EDEB',
+    padding: 6, boxSizing: 'border-box',
+  }
+
+  if (id === 'middle') return (
+    <div style={containerStyle}>
+      {textLine()}{textLine('80%')}
+      {imgBlock({ height: 18, marginBottom: 3 })}
+      {textLine()}{textLine('70%')}
+    </div>
+  )
+
+  if (id === 'below-text') return (
+    <div style={containerStyle}>
+      {textLine()}{textLine('80%')}{textLine()}{textLine('60%')}
+      {imgBlock({ height: 16 })}
+    </div>
+  )
+
+  // top-right
+  return (
+    <div style={{ ...containerStyle, display: 'flex', gap: 4 }}>
+      <div style={{ flex: 1 }}>
+        {textLine()}{textLine()}{textLine()}{textLine('80%')}
+      </div>
+      {imgBlock({ width: 24, height: '100%', flexShrink: 0 })}
     </div>
   )
 }

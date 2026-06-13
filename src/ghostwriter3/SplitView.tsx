@@ -8,6 +8,7 @@ import { TextArea }  from '@leafygreen-ui/text-area'
 import { Tabs, Tab } from '@leafygreen-ui/tabs'
 import { Stepper, Step } from '@leafygreen-ui/stepper'
 import { Banner } from '@leafygreen-ui/banner'
+import { ParagraphSkeleton } from '@leafygreen-ui/skeleton-loader'
 import { Label, Body, H2, Overline } from '@leafygreen-ui/typography'
 import { palette }   from '../tokens'
 
@@ -222,12 +223,12 @@ The Atlas approach: $vectorSearch combined with standard query operators in the 
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function SplitView({ onViewHistory }: { onViewHistory?: () => void }) {
-  const [form, setForm]           = useState<V3Form>(defaultForm)
-  const [genStage, setGenStage]   = useState<GenStage>('idle')
-  const [progress, setProgress]   = useState(0)
-  const [genItems, setGenItems]   = useState<string[]>([])
-  const [activeTab, setActiveTab] = useState<TabId>('blog')
-  const [submitted, setSubmitted] = useState(false)
+  const [form, setForm]               = useState<V3Form>(defaultForm)
+  const [genStage, setGenStage]       = useState<GenStage>('idle')
+  const [progress, setProgress]       = useState(0)
+  const [genItems, setGenItems]       = useState<string[]>([])
+  const [activeTab, setActiveTab]     = useState<TabId>('blog')
+  const [submitted, setSubmitted]     = useState(false)
 
   const update = (patch: Partial<V3Form>) => setForm(prev => ({ ...prev, ...patch }))
 
@@ -320,6 +321,7 @@ export function SplitView({ onViewHistory }: { onViewHistory?: () => void }) {
       )
     }
 
+
     const visualPlaceholder = (
       <div style={{
         border: `1.5px dashed ${palette.gray.light1}`,
@@ -398,18 +400,13 @@ export function SplitView({ onViewHistory }: { onViewHistory?: () => void }) {
 
           {(form.audience || form.tone) ? (
             <>
-              <Body style={{ lineHeight: 1.8, marginBottom: 20, color: palette.gray.dark1 }}>
-                {tabId === 'blog'
-                  ? blogOpener(form.audience, form.tone)
-                  : tabId === 'linkedin'
-                  ? linkedInOpener(form.audience, form.tone)
-                  : emailOpener(form.audience, form.tone, form.campaignName)
-                }
-              </Body>
+              <ParagraphSkeleton />
 
               {form.includeVisual && form.visualPlacement === 'middle' && visualPlaceholder}
 
-              <SkeletonLines />
+              <div style={{ marginTop: 16 }}>
+                <ParagraphSkeleton />
+              </div>
 
               {form.includeVisual && form.visualPlacement === 'below-text' && visualPlaceholder}
 
