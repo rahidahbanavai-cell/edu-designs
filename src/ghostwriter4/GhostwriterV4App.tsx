@@ -43,6 +43,12 @@ export function GhostwriterV4App() {
         </button>
 
         <div style={{ flex: 1 }} />
+        {(view === 'landing' || view === 'editor') && (
+          <Button variant="default" onClick={() => setView('history')}>Package History</Button>
+        )}
+        {view === 'history' && (
+          <Button variant="default" onClick={() => setView('editor')}>Back to Editor</Button>
+        )}
       </div>
 
       {/* Content — the only thing that scrolls */}

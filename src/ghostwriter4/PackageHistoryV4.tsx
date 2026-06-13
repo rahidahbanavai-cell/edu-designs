@@ -115,7 +115,7 @@ The teams that ship reliable agent memory don't have better infrastructure. They
 
 const STATUS_META: Record<PkgStatus, { label: string; badgeVariant: 'green' | 'blue' | 'red' | 'yellow'; bannerVariant: 'success' | 'info' | 'danger' | 'warning'; stepIdx: number }> = {
   'approved':          { label: 'Approved',          badgeVariant: 'green',  bannerVariant: 'success', stepIdx: 3 },
-  'in-review':         { label: 'In Review',          badgeVariant: 'blue',   bannerVariant: 'info',    stepIdx: 2 },
+  'in-review':         { label: 'In Review',          badgeVariant: 'yellow', bannerVariant: 'warning', stepIdx: 2 },
   'denied':            { label: 'Denied',             badgeVariant: 'red',    bannerVariant: 'danger',  stepIdx: 3 },
   'changes-requested': { label: 'Changes Requested',  badgeVariant: 'yellow', bannerVariant: 'warning', stepIdx: 3 },
 }
@@ -227,7 +227,6 @@ export function PackageHistoryV4({ onBack }: { onBack: () => void }) {
               ))}
             </div>
           </div>
-          <Button variant="default" onClick={onBack}>Back to Editor</Button>
         </div>
 
         {/* Status banner */}
