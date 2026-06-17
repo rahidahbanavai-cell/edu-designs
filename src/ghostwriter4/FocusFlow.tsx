@@ -3,7 +3,6 @@ import { Button } from '@leafygreen-ui/button'
 import { Badge } from '@leafygreen-ui/badge'
 import { Card } from '@leafygreen-ui/card'
 import TextInput from '@leafygreen-ui/text-input'
-import TextArea from '@leafygreen-ui/text-area'
 // @ts-ignore
 import { Tabs, Tab } from '@leafygreen-ui/tabs'
 import { H2, H3, Body, Overline } from '@leafygreen-ui/typography'
@@ -178,10 +177,10 @@ interface V4Form {
   tone: string
   includeVisual: boolean | null
   visualPlacement: '' | 'middle' | 'below-text' | 'top-right'
-  context: string
+  contextFiles: File[]
 }
 
-const defaultForm: V4Form = { name: '', audience: '', formats: [], tone: '', includeVisual: null, visualPlacement: '', context: '' }
+const defaultForm: V4Form = { name: '', audience: '', formats: [], tone: '', includeVisual: null, visualPlacement: '', contextFiles: [] }
 
 const FORM_STEPS = [
   { id: 'name'     as const, title: 'Name your package' },
@@ -221,8 +220,7 @@ function getStepSummary(id: StepId, form: V4Form): string {
     const labels: Record<string, string> = { 'middle': 'Middle', 'below-text': 'Below text', 'top-right': 'Top right' }
     return `Yes — ${labels[form.visualPlacement] ?? '—'}`
   }
-  const c = form.context
-  return c ? (c.length > 70 ? c.slice(0, 70) + '…' : c) : 'Not provided'
+  return form.contextFiles.length > 0 ? `${form.contextFiles.length} file${form.contextFiles.length !== 1 ? 's' : ''} uploaded` : 'Not provided'
 }
 
 // ─── FocusFlow ────────────────────────────────────────────────────────────────
@@ -400,13 +398,69 @@ export function FocusFlow({ onViewHistory }: { onViewHistory?: () => void } = {}
 
     if (id === 'context') {
       return (
-        <TextArea
-          aria-label="Additional context"
-          placeholder="Add any constraints, messaging angles, or specific details you want the AI to incorporate…"
-          value={form.context}
-          onChange={e => update({ context: e.target.value })}
-          rows={4}
-        />
+        <div>
+          <input
+            id="gw4-context-file-input"
+            type="file"
+            multiple
+            accept=".pdf,.doc,.docx,.txt,.md"
+            style={{ display: 'none' }}
+            onChange={e => {
+              const newFiles = Array.from(e.target.files ?? [])
+              if (newFiles.length) update({ contextFiles: [...form.contextFiles, ...newFiles] })
+              e.target.value = ''
+            }}
+          />
+          <div
+            onClick={() => document.getElementById('gw4-context-file-input')?.click()}
+            onDragOver={e => { e.preventDefault(); (e.currentTarget as HTMLDivElement).style.background = '#F9FAFA' }}
+            onDragLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'transparent' }}
+            onDrop={e => {
+              e.preventDefault();
+              (e.currentTarget as HTMLDivElement).style.background = 'transparent'
+              const dropped = Array.from(e.dataTransfer.files)
+              if (dropped.length) update({ contextFiles: [...form.contextFiles, ...dropped] })
+            }}
+            style={{
+              border: `1.5px dashed ${palette.gray.light1}`,
+              borderRadius: 8,
+              padding: '28px 20px',
+              textAlign: 'center',
+              cursor: 'pointer',
+              background: 'transparent',
+              transition: 'background 0.15s',
+            }}
+          >
+            <Body style={{ color: palette.gray.dark1, fontSize: 14 } as React.CSSProperties}>
+              Drop files here or <span style={{ color: palette.blue.base, textDecoration: 'underline' }}>browse</span>
+            </Body>
+            <Body style={{ color: palette.gray.base, fontSize: 12, marginTop: 6 } as React.CSSProperties}>
+              PDF, DOCX, TXT, MD
+            </Body>
+          </div>
+          {form.contextFiles.length > 0 && (
+            <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {form.contextFiles.map((file, i) => (
+                <div key={i} style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '8px 12px', borderRadius: 6,
+                  background: palette.gray.light3,
+                  border: `1px solid ${palette.gray.light2}`,
+                }}>
+                  <Body style={{ fontSize: 13, color: palette.black } as React.CSSProperties}>
+                    {file.name}
+                  </Body>
+                  <button
+                    onClick={e => { e.stopPropagation(); update({ contextFiles: form.contextFiles.filter((_, j) => j !== i) }) }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: palette.gray.dark1, fontSize: 16, lineHeight: 1, padding: '0 4px' }}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       )
     }
 
