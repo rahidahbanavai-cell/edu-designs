@@ -6,6 +6,7 @@ import { Card } from '@leafygreen-ui/card'
 import { Stepper, Step } from '@leafygreen-ui/stepper'
 import { H2, H3, Body, Overline } from '@leafygreen-ui/typography'
 import Banner from '@leafygreen-ui/banner'
+import { TextArea } from '@leafygreen-ui/text-area'
 import { palette } from '../tokens'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -264,24 +265,14 @@ export function PackageHistoryV4({ onBack }: { onBack: () => void }) {
               </Card>
             ) : (
               <Card style={{ padding: '20px 24px' }}>
-                <Overline style={{ display: 'block', marginBottom: 8, color: palette.gray.dark1 }}>REASON FOR DENIAL</Overline>
-                <Body style={{ color: palette.gray.dark1, marginBottom: 12 } as React.CSSProperties}>
-                  Enter the reason provided by your reviewer so you can reference it later.
-                </Body>
-                <textarea
+                {/* @ts-ignore */}
+                <TextArea
+                  label="Reason for Denial"
+                  description="Enter the reason provided by your reviewer so you can reference it later."
                   value={denialReason}
-                  onChange={e => setDenialReason(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDenialReason(e.target.value)}
                   placeholder="e.g. Several product claims are not aligned with current documentation…"
-                  rows={4}
-                  style={{
-                    width: '100%', boxSizing: 'border-box' as const,
-                    padding: '10px 12px', borderRadius: 6,
-                    border: `1px solid ${palette.gray.light1}`,
-                    fontFamily: "'Euclid Circular A', sans-serif",
-                    fontSize: 13, color: palette.black,
-                    resize: 'vertical' as const, outline: 'none',
-                    marginBottom: 16,
-                  }}
+                  style={{ marginBottom: 16 }}
                 />
                 <div style={{ display: 'flex', gap: 12 }}>
                   <Button

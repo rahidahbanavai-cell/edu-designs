@@ -452,12 +452,13 @@ export function FocusFlow({ onViewHistory }: { onViewHistory?: () => void } = {}
                   <Body style={{ fontSize: 13, color: palette.black } as React.CSSProperties}>
                     {file.name}
                   </Body>
-                  <button
-                    onClick={e => { e.stopPropagation(); update({ contextFiles: form.contextFiles.filter((_, j) => j !== i) }) }}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: palette.gray.dark1, fontSize: 16, lineHeight: 1, padding: '0 4px' }}
+                  <Button
+                    variant="default"
+                    size="xsmall"
+                    onClick={(e: React.MouseEvent) => { e.stopPropagation(); update({ contextFiles: form.contextFiles.filter((_, j) => j !== i) }) }}
                   >
                     ×
-                  </button>
+                  </Button>
                 </div>
               ))}
             </div>
