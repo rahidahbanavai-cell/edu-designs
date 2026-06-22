@@ -10,7 +10,7 @@ import { palette } from '../tokens'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type PkgStatus = 'approved' | 'in-review' | 'denied' | 'changes-requested'
+type PkgStatus = 'approved' | 'in-review' | 'denied'
 
 interface Package {
   id: string
@@ -20,7 +20,6 @@ interface Package {
   formats: string[]
   submittedDate: string
   hasVisual: boolean
-  visualPlacement?: 'middle' | 'below-text' | 'top-right'
 }
 
 // ─── Mock data ────────────────────────────────────────────────────────────────
@@ -29,12 +28,11 @@ const PACKAGES: Package[] = [
   {
     id: 'agentic-apps',
     name: 'Agentic Apps Campaign — Q2 2026',
-    status: 'changes-requested',
+    status: 'in-review',
     audience: 'AI-Native Engineers',
     formats: ['Blog Post', 'LinkedIn Thread'],
     submittedDate: 'Jun 8, 2026',
     hasVisual: true,
-    visualPlacement: 'middle',
   },
   {
     id: 'atlas-vector',
@@ -74,24 +72,6 @@ const STEP_DESCRIPTIONS: Record<string, string> = {
   'Completed': 'Review process complete. See status above for the outcome.',
 }
 
-const REVIEWER_COMMENTS = [
-  {
-    id: 1,
-    quote: '"Your agent is not broken. Your memory evaluation process is."',
-    comment: 'Strong opener, but this framing may feel accusatory. Consider softening — not all readers caused this problem themselves.',
-  },
-  {
-    id: 2,
-    quote: '"production behavior drifted"',
-    comment: 'Too vague. Add a concrete example of what drift looks like in practice — e.g. a specific preference being forgotten or stale context surfacing.',
-  },
-  {
-    id: 3,
-    quote: '"The teams that ship reliable agent memory don\'t have better infrastructure."',
-    comment: 'This is a strong claim. Add "in our experience" or a qualifier — it needs backing to avoid reading as an unsupported assertion.',
-  },
-]
-
 const DRAFT_EXCERPT = `Your agent is not broken. Your memory evaluation process is.
 
 You shipped an agent that looked strong in internal demos, then production behavior drifted. It forgets key user preferences in one flow, resurrects stale context in another, and occasionally pulls irrelevant history into critical decisions.
@@ -114,41 +94,26 @@ A rubric that ignores cost creates brittle systems. The right memory architectur
 The teams that ship reliable agent memory don't have better infrastructure. They have better evaluation.`
 
 const STATUS_META: Record<PkgStatus, { label: string; badgeVariant: 'green' | 'blue' | 'red' | 'yellow'; bannerVariant: 'success' | 'info' | 'danger' | 'warning'; stepIdx: number }> = {
-  'approved':          { label: 'Approved',          badgeVariant: 'green',  bannerVariant: 'success', stepIdx: 3 },
-  'in-review':         { label: 'In Review',          badgeVariant: 'yellow', bannerVariant: 'warning', stepIdx: 2 },
-  'denied':            { label: 'Denied',             badgeVariant: 'red',    bannerVariant: 'danger',  stepIdx: 3 },
-  'changes-requested': { label: 'Changes Requested',  badgeVariant: 'yellow', bannerVariant: 'warning', stepIdx: 3 },
+  'approved':  { label: 'Approved',  badgeVariant: 'green',  bannerVariant: 'success', stepIdx: 3 },
+  'in-review': { label: 'In Review', badgeVariant: 'yellow', bannerVariant: 'warning', stepIdx: 2 },
+  'denied':    { label: 'Denied',    badgeVariant: 'red',    bannerVariant: 'danger',  stepIdx: 3 },
 }
 
 const BANNER_MESSAGES: Record<PkgStatus, string> = {
-  'approved':          'Your package has been approved and is ready to distribute.',
-  'in-review':         'Your package is currently being reviewed. You\'ll be notified when the review is complete.',
-  'denied':            'Your package was denied. Review the reason below and start a new package with a revised approach.',
-  'changes-requested': 'The reviewer has requested changes before this package can be approved. Address each comment below and resubmit.',
+  'approved':  'Your package has been approved and is ready to distribute.',
+  'in-review': 'Your package is currently being reviewed. You\'ll be notified when the review is complete.',
+  'denied':    'Your package was denied. Review the reason below and start a new package with a revised approach.',
 }
 
 // ─── PackageHistoryV4 ─────────────────────────────────────────────────────────
 
 export function PackageHistoryV4({ onBack }: { onBack: () => void }) {
-  const [selectedId, setSelectedId]     = useState('agentic-apps')
-  const [packages, setPackages]         = useState<Package[]>(PACKAGES)
-  const [resubmitting, setResubmitting] = useState(false)
-  const [resubmittedIds, setResubmittedIds] = useState<Set<string>>(new Set())
+  const [selectedId, setSelectedId] = useState('agentic-apps')
+  const [packages]                  = useState<Package[]>(PACKAGES)
 
-  const selected = packages.find(p => p.id === selectedId)!
-  const meta     = STATUS_META[selected.status]
-
-  const handleResubmit = () => {
-    setResubmitting(true)
-    setTimeout(() => {
-      setPackages(prev => prev.map(p => p.id === selectedId ? { ...p, status: 'in-review' } : p))
-      setResubmittedIds(prev => new Set([...prev, selectedId]))
-      setResubmitting(false)
-    }, 1200)
-  }
-
-  const wasResubmitted = resubmittedIds.has(selectedId)
-  const currentStepIdx = wasResubmitted ? 2 : meta.stepIdx
+  const selected       = packages.find(p => p.id === selectedId)!
+  const meta           = STATUS_META[selected.status]
+  const currentStepIdx = meta.stepIdx
 
   return (
     <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
@@ -230,10 +195,8 @@ export function PackageHistoryV4({ onBack }: { onBack: () => void }) {
         </div>
 
         {/* Status banner */}
-        <Banner variant={wasResubmitted ? 'info' : meta.bannerVariant} style={{ marginBottom: 28 }}>
-          {wasResubmitted
-            ? 'Package resubmitted successfully. It\'s now back in the review queue.'
-            : BANNER_MESSAGES[selected.status]}
+        <Banner variant={meta.bannerVariant} style={{ marginBottom: 28 }}>
+          {BANNER_MESSAGES[selected.status]}
         </Banner>
 
         {/* Review progress */}
@@ -260,52 +223,8 @@ export function PackageHistoryV4({ onBack }: { onBack: () => void }) {
           </div>
         </Card>
 
-        {/* ── Changes Requested detail ─────────────────────────────────── */}
-        {selected.status === 'changes-requested' && !wasResubmitted && (
-          <div>
-            {/* Reviewer comments */}
-            <H3 style={{ marginBottom: 16 }}>Reviewer Comments ({REVIEWER_COMMENTS.length})</H3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 28 }}>
-              {REVIEWER_COMMENTS.map(c => (
-                <Card key={c.id} style={{ padding: '16px 20px', borderLeft: `4px solid #F9A649`, background: '#FFFBF0' }}>
-                  <Body style={{ fontStyle: 'italic', color: palette.gray.dark1, fontSize: 13, marginBottom: 8 } as React.CSSProperties}>
-                    {c.quote}
-                  </Body>
-                  <Body style={{ color: palette.black, fontSize: 13 } as React.CSSProperties}>
-                    {c.comment}
-                  </Body>
-                </Card>
-              ))}
-            </div>
-
-            {/* Draft preview with visual placeholder */}
-            <H3 style={{ marginBottom: 16 }}>Draft Preview</H3>
-            <Card style={{ padding: '24px 28px', marginBottom: 24 }}>
-              {selected.hasVisual && selected.visualPlacement === 'middle'
-                ? <DraftWithVisual content={DRAFT_EXCERPT} />
-                : <pre style={draftPreStyle}>{DRAFT_EXCERPT}</pre>
-              }
-            </Card>
-
-            {/* Resubmit */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              <Button
-                variant="primary"
-                isLoading={resubmitting}
-                loadingText="Submitting…"
-                onClick={handleResubmit}
-              >
-                Resubmit for Review →
-              </Button>
-              <Body style={{ fontSize: 12, color: palette.gray.dark1 } as React.CSSProperties}>
-                Make sure you've addressed all reviewer comments before resubmitting.
-              </Body>
-            </div>
-          </div>
-        )}
-
-        {/* ── In Review (resubmitted state) ────────────────────────────── */}
-        {(selected.status === 'in-review' || wasResubmitted) && (
+        {/* ── In Review ────────────────────────────────────────────────── */}
+        {selected.status === 'in-review' && (
           <div>
             <H3 style={{ marginBottom: 16 }}>Draft Preview</H3>
             <Card style={{ padding: '24px 28px' }}>
@@ -350,35 +269,3 @@ const draftPreStyle: React.CSSProperties = {
   whiteSpace: 'pre-wrap', wordBreak: 'break-word', margin: 0,
 }
 
-function VisualPlaceholder() {
-  return (
-    <div style={{
-      background: palette.gray.light3, border: `2px dashed ${palette.gray.light1}`,
-      borderRadius: 8, padding: '28px 16px', textAlign: 'center',
-      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-      margin: '16px 0',
-    }}>
-      <div style={{ fontSize: 24 }}>🖼</div>
-      <Body style={{ color: palette.gray.dark1, fontWeight: 600, fontSize: 13 } as React.CSSProperties}>
-        Visual Design Placeholder
-      </Body>
-      <Body style={{ color: palette.gray.base, fontSize: 11 } as React.CSSProperties}>
-        Placement: Middle · Final asset delivered after approval
-      </Body>
-    </div>
-  )
-}
-
-function DraftWithVisual({ content }: { content: string }) {
-  const mid      = Math.floor(content.length * 0.4)
-  const splitIdx = content.indexOf('\n\n', mid)
-  const first    = splitIdx > 0 ? content.slice(0, splitIdx) : content.slice(0, mid)
-  const second   = splitIdx > 0 ? content.slice(splitIdx + 2) : content.slice(mid)
-  return (
-    <>
-      <pre style={draftPreStyle}>{first}</pre>
-      <VisualPlaceholder />
-      <pre style={draftPreStyle}>{second}</pre>
-    </>
-  )
-}

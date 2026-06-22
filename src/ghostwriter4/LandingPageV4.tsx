@@ -39,28 +39,11 @@ const STAGE_CARDS = [
     whatHappening:
       'A MongoDB content reviewer examines every draft for factual accuracy, brand voice alignment, and compliance with content guidelines. They verify that all technical claims are accurate, that messaging is consistent with MongoDB\'s positioning, and that the content is appropriate for the intended audience.',
     yourAction:
-      'No action needed during this stage. You\'ll receive a notification when the review is complete. The reviewer will either approve the package, request changes, or deny it.',
-  },
-  {
-    id: 'changes-requested',
-    number: 3,
-    label: 'Changes Requested',
-    badgeVariant: 'yellow' as const,
-    accentColor: '#C97F00',
-    circleColor: '#944F01',
-    circleTextColor: '#FFFFFF',
-    bgColor: '#FFFBF0',
-    isException: true,
-    involved: 'You + reviewer (async)',
-    timeline: 'Depends on your revision speed',
-    whatHappening:
-      'The reviewer found specific issues that need to be addressed before the content can be approved. They have left inline comments on the draft, highlighting the exact passages that need revision and explaining why the changes are needed. This stage is an opportunity to refine, not start over.',
-    yourAction:
-      'Read each reviewer comment carefully. Address the feedback in your revised draft — do not just rewrite sections without understanding the underlying concern. Once all comments are resolved, resubmit the package for a follow-up review.',
+      'No action needed during this stage. You\'ll receive a notification when the review is complete. The reviewer will either approve the package or deny it.',
   },
   {
     id: 'denied',
-    number: 4,
+    number: 3,
     label: 'Denied',
     badgeVariant: 'red' as const,
     accentColor: palette.red,
@@ -77,7 +60,7 @@ const STAGE_CARDS = [
   },
   {
     id: 'approved',
-    number: 5,
+    number: 4,
     label: 'Approved',
     badgeVariant: 'green' as const,
     accentColor: palette.green.dark2,
@@ -149,7 +132,7 @@ export function LandingPageV4({ onGetStarted }: { onGetStarted: () => void }) {
               THE REVIEW PIPELINE
             </Overline>
             <H2 style={{ marginBottom: 16, color: palette.black }}>
-              From brief to audience in five stages
+              From brief to audience in four stages
             </H2>
             <Body style={{
               color: palette.gray.dark1, maxWidth: 560, margin: '0 auto', lineHeight: 1.7,
