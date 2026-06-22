@@ -6,6 +6,7 @@ import { Card } from '@leafygreen-ui/card'
 import { Stepper, Step } from '@leafygreen-ui/stepper'
 import { H2, H3, Body, Overline } from '@leafygreen-ui/typography'
 import Banner from '@leafygreen-ui/banner'
+import { TextArea } from '@leafygreen-ui/text-area'
 import { palette } from '../tokens'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -300,27 +301,20 @@ export function PackageHistoryV4({ onBack }: { onBack: () => void }) {
           </div>
         )}
 
-        {/* ── Approved detail ──────────────────────────────────────────── */}
-        {selected.status === 'approved' && (
-          <div>
-            <H3 style={{ marginBottom: 16 }}>Approved Drafts</H3>
-            <Card style={{ padding: '24px 28px', marginBottom: 24 }}>
-              <pre style={draftPreStyle}>{DRAFT_EXCERPT}</pre>
-            </Card>
-            <Button variant="primary">Download Approved Drafts</Button>
-          </div>
-        )}
 
         {/* ── Denied detail ────────────────────────────────────────────── */}
         {selected.status === 'denied' && (
           <div>
             {selected.denialReason && (
-              <Card style={{ padding: '20px 24px', marginBottom: 24, borderLeft: `4px solid ${palette.red}`, background: '#FFF3F1' }}>
-                <Overline style={{ display: 'block', marginBottom: 8 }}>Denial Reason</Overline>
-                <Body style={{ color: palette.black, lineHeight: 1.7 } as React.CSSProperties}>
-                  {selected.denialReason}
-                </Body>
-              </Card>
+              <div style={{ marginBottom: 24 }}>
+                {/* @ts-ignore */}
+                <TextArea
+                  label="Denial Reason"
+                  value={selected.denialReason}
+                  disabled
+                  rows={6}
+                />
+              </div>
             )}
             <Button variant="primary" onClick={onBack}>Start a New Package →</Button>
           </div>
