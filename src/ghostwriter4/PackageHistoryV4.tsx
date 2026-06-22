@@ -265,15 +265,16 @@ export function PackageHistoryV4({ onBack }: { onBack: () => void }) {
               </Card>
             ) : (
               <Card style={{ padding: '20px 24px' }}>
-                {/* @ts-ignore */}
-                <TextArea
-                  label="Reason for Denial"
-                  description="Enter the reason provided by your reviewer so you can reference it later."
-                  value={denialReason}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDenialReason(e.target.value)}
-                  placeholder="e.g. Several product claims are not aligned with current documentation…"
-                  style={{ marginBottom: 16 }}
-                />
+                <div style={{ marginBottom: 20 }}>
+                  {/* @ts-ignore */}
+                  <TextArea
+                    label="Reason for Denial"
+                    description="Enter the reason provided by your reviewer so you can reference it later."
+                    value={denialReason}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDenialReason(e.target.value)}
+                    placeholder="e.g. Several product claims are not aligned with current documentation…"
+                  />
+                </div>
                 <div style={{ display: 'flex', gap: 12 }}>
                   <Button
                     variant="danger"
