@@ -1,17 +1,25 @@
 import { useState } from 'react'
 import { MongoDBLogoMark } from '@leafygreen-ui/logo'
-import { Badge } from '@leafygreen-ui/badge'
 import { Button } from '@leafygreen-ui/button'
+import { Badge } from '@leafygreen-ui/badge'
 import { palette } from '../tokens'
-import { SplitView } from './SplitView'
-import { LandingPage } from './LandingPage'
-import { PackageHistory } from './PackageHistory'
+import { SplitViewV5 } from './SplitViewV5'
+import { LandingPage } from '../ghostwriter3/LandingPage'
+import { PackageHistory } from '../ghostwriter3/PackageHistory'
 
 type View = 'landing' | 'editor' | 'history'
 
-export function GhostwriterV3App() {
+export function GhostwriterV5App() {
   const [view, setView] = useState<View>('landing')
+  const [editorDone, setEditorDone] = useState(false)
   const [editorSubmitted, setEditorSubmitted] = useState(false)
+  const [resetKey, setResetKey] = useState(0)
+
+  const handleStartNew = () => {
+    setResetKey(k => k + 1)
+    setEditorDone(false)
+    setEditorSubmitted(false)
+  }
 
   return (
     <div style={{
@@ -47,7 +55,9 @@ export function GhostwriterV3App() {
         {view === 'editor' && !editorSubmitted && (
           <div style={{ display: 'flex', gap: 8 }}>
             <Button variant="default" onClick={() => setView('history')}>Package History</Button>
-            <Button variant="default" onClick={() => setView('landing')}>Overview</Button>
+            {editorDone && (
+              <Button variant="default" onClick={handleStartNew}>Start New Package</Button>
+            )}
           </div>
         )}
         {view === 'history' && (
@@ -56,7 +66,7 @@ export function GhostwriterV3App() {
       </nav>
 
       {view === 'landing' && <LandingPage onGetStarted={() => setView('editor')} />}
-      {view === 'editor'  && <SplitView onViewHistory={() => setView('history')} onSubmittedChange={setEditorSubmitted} />}
+      {view === 'editor'  && <SplitViewV5 key={resetKey} onViewHistory={() => setView('history')} onGenStageChange={stage => setEditorDone(stage === 'done')} onSubmittedChange={setEditorSubmitted} />}
       {view === 'history' && <PackageHistory onBack={() => setView('editor')} />}
     </div>
   )

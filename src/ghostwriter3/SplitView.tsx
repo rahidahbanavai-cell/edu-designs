@@ -4,7 +4,6 @@ import { Badge }     from '@leafygreen-ui/badge'
 import { Chip }      from '@leafygreen-ui/chip'
 import { Card }      from '@leafygreen-ui/card'
 import { TextInput } from '@leafygreen-ui/text-input'
-import { TextArea }  from '@leafygreen-ui/text-area'
 import { Tabs, Tab } from '@leafygreen-ui/tabs'
 import { Stepper, Step } from '@leafygreen-ui/stepper'
 import { Banner } from '@leafygreen-ui/banner'
@@ -19,7 +18,7 @@ interface V3Form {
   audience:             string
   outputTypes:          string[]
   tone:                 string
-  context:              string
+  contextFiles:         File[]
   includeVisual:        boolean
   visualPlacement:      'middle' | 'below-text' | 'top-right'
 }
@@ -32,7 +31,7 @@ const defaultForm: V3Form = {
   audience:        '',
   outputTypes:     [],
   tone:            '',
-  context:         '',
+  contextFiles:    [],
   includeVisual:   false,
   visualPlacement: 'middle',
 }
@@ -222,13 +221,18 @@ The Atlas approach: $vectorSearch combined with standard query operators in the 
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function SplitView({ onViewHistory }: { onViewHistory?: () => void }) {
+export function SplitView({ onViewHistory, onSubmittedChange }: { onViewHistory?: () => void; onSubmittedChange?: (submitted: boolean) => void }) {
   const [form, setForm]               = useState<V3Form>(defaultForm)
   const [genStage, setGenStage]       = useState<GenStage>('idle')
   const [progress, setProgress]       = useState(0)
   const [genItems, setGenItems]       = useState<string[]>([])
   const [activeTab, setActiveTab]     = useState<TabId>('blog')
   const [submitted, setSubmitted]     = useState(false)
+
+  const setSubmittedAndNotify = (val: boolean) => {
+    setSubmitted(val)
+    onSubmittedChange?.(val)
+  }
 
   const update = (patch: Partial<V3Form>) => setForm(prev => ({ ...prev, ...patch }))
 
@@ -247,7 +251,7 @@ export function SplitView({ onViewHistory }: { onViewHistory?: () => void }) {
     setGenStage('generating')
     setProgress(0)
     setGenItems([])
-    setSubmitted(false)
+    setSubmittedAndNotify(false)
     const first = FORMATS.find(f => form.outputTypes.includes(f.id))
     if (first) setActiveTab(first.id)
   }
@@ -257,7 +261,7 @@ export function SplitView({ onViewHistory }: { onViewHistory?: () => void }) {
     setGenStage('idle')
     setProgress(0)
     setGenItems([])
-    setSubmitted(false)
+    setSubmittedAndNotify(false)
   }
 
   useEffect(() => {
@@ -488,12 +492,51 @@ export function SplitView({ onViewHistory }: { onViewHistory?: () => void }) {
   const handleDownloadPng = async (tabId: TabId) => {
     const node = doneCardRefs.current[tabId]
     if (!node) return
-    const html2canvas = (await import('html2canvas')).default
+    const [html2canvas, { jsPDF }] = await Promise.all([
+      import('html2canvas').then(m => m.default),
+      import('jspdf'),
+    ])
+
     const canvas = await html2canvas(node, { scale: 2, useCORS: true })
-    const link = document.createElement('a')
-    link.download = `${tabId}-draft.png`
-    link.href = canvas.toDataURL('image/png')
-    link.click()
+
+    // Draw DRAFT watermark on a fresh overlay canvas, then composite onto the original
+    const w = canvas.width
+    const h = canvas.height
+    const overlay = document.createElement('canvas')
+    overlay.width = w
+    overlay.height = h
+    const ctx = overlay.getContext('2d')!
+
+    // Copy the html2canvas render
+    ctx.drawImage(canvas, 0, 0)
+
+    // Watermark
+    const fontSize = Math.round(Math.min(w, h) * 0.18)
+    ctx.save()
+    ctx.translate(w / 2, h / 2)
+    ctx.rotate(-Math.PI / 6)
+    ctx.font = `bold ${fontSize}px Arial`
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.globalAlpha = 0.25
+    ctx.strokeStyle = '#001E2B'
+    ctx.lineWidth = fontSize * 0.04
+    ctx.strokeText('DRAFT', 0, 0)
+    ctx.fillStyle = '#001E2B'
+    ctx.fillText('DRAFT', 0, 0)
+    ctx.restore()
+
+    // Export as PDF with margins so content doesn't touch the edges
+    const imgData = overlay.toDataURL('image/png')
+    const pxToMm = 0.2645833333
+    const margin = 20 // mm
+    const contentW = w * pxToMm
+    const contentH = h * pxToMm
+    const pageW = contentW + margin * 2
+    const pageH = contentH + margin * 2
+    const pdf = new jsPDF({ orientation: pageW > pageH ? 'landscape' : 'portrait', unit: 'mm', format: [pageW, pageH] })
+    pdf.addImage(imgData, 'PNG', margin, margin, contentW, contentH)
+    pdf.save(`${tabId}-draft-for-review.pdf`)
   }
 
   const renderDoneContent = (tabId: TabId) => {
@@ -597,9 +640,9 @@ export function SplitView({ onViewHistory }: { onViewHistory?: () => void }) {
             display: 'flex', gap: 10,
           }}>
             <Button variant="default" onClick={() => handleDownloadPng(tabId)}>
-              Download as PNG
+              Download for Review
             </Button>
-            <Button variant="primary" onClick={() => setSubmitted(true)}>Submit for Review →</Button>
+            <Button variant="primary" onClick={() => setSubmittedAndNotify(true)}>Mark for Review</Button>
           </div>
         </Card>
       </>
@@ -627,9 +670,9 @@ export function SplitView({ onViewHistory }: { onViewHistory?: () => void }) {
             }}>
               <span style={{ color: palette.white, fontSize: 28, fontWeight: 700, lineHeight: 1 }}>✓</span>
             </div>
-            <H2 style={{ marginBottom: 6 }}>Submitted for review</H2>
+            <H2 style={{ marginBottom: 6 }}>Marked for Review</H2>
             <Body style={{ color: palette.gray.dark1 } as React.CSSProperties}>
-              Your content package is in the review queue.
+              Submit your downloaded PDF to your reviewer. Once you receive their decision, return here to record it in Package History.
             </Body>
           </div>
 
@@ -664,24 +707,23 @@ export function SplitView({ onViewHistory }: { onViewHistory?: () => void }) {
           {/* Review timeline */}
           <Card style={{ padding: '20px 24px', marginBottom: 28 }}>
             <Body style={{ fontWeight: 600, color: palette.black, marginBottom: 18 }}>What happens next</Body>
-            {/* step 0 complete (received), step 1 (Reviewer assigned) is current */}
             {/* @ts-ignore */}
             <Stepper currentStep={1}>
               {/* @ts-ignore */}
-              <Step>Package received</Step>
+              <Step>Marked for review</Step>
               {/* @ts-ignore */}
-              <Step>Reviewer assigned</Step>
+              <Step>Submit to reviewer</Step>
               {/* @ts-ignore */}
-              <Step>Review in progress</Step>
+              <Step>Await decision</Step>
               {/* @ts-ignore */}
-              <Step>Ready to share</Step>
+              <Step>Record outcome</Step>
             </Stepper>
             <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
               {[
-                { label: 'Package received',   detail: `Your ${selectedFmts.length} draft${selectedFmts.length !== 1 ? 's' : ''} are queued for review.`, done: true  },
-                { label: 'Reviewer assigned',  detail: 'A content reviewer will be confirmed within 1 business day.',                                       done: false },
-                { label: 'Review in progress', detail: 'Typical turnaround: 1–2 business days.',                                                            done: false },
-                { label: 'Ready to share',     detail: "You'll be notified by email when your drafts are approved.",                                        done: false },
+                { label: 'Marked for review',  detail: 'Package is logged and your PDF is ready to send.', done: true  },
+                { label: 'Submit to reviewer', detail: 'Share the downloaded PDF with your content reviewer outside Ghostwriter.', done: false },
+                { label: 'Await decision',     detail: 'Your reviewer will approve, deny, or request changes.',                    done: false },
+                { label: 'Record outcome',     detail: 'Return to Package History and mark the decision you received.',            done: false },
               ].map(s => (
                 <div key={s.label} style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
                   <Body style={{ fontSize: 12, fontWeight: 600, color: s.done ? palette.black : palette.gray.dark1, whiteSpace: 'nowrap' as const } as React.CSSProperties}>
@@ -697,15 +739,15 @@ export function SplitView({ onViewHistory }: { onViewHistory?: () => void }) {
 
           {/* Actions */}
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const }}>
-            <Button variant="default" onClick={() => setSubmitted(false)}>
-              ← Back to drafts
-            </Button>
             {onViewHistory && (
-              <Button variant="default" onClick={onViewHistory}>
-                View Package History
+              <Button variant="primary" onClick={onViewHistory}>
+                Go to Package History
               </Button>
             )}
-            <Button variant="primary" onClick={handleReset}>
+            <Button variant="default" onClick={() => setSubmittedAndNotify(false)}>
+              Edit Draft
+            </Button>
+            <Button variant="default" onClick={handleReset}>
               Start New Package
             </Button>
           </div>
@@ -730,7 +772,7 @@ export function SplitView({ onViewHistory }: { onViewHistory?: () => void }) {
           {/* Campaign name — TextInput */}
           <div style={{ marginBottom: 20 }}>
             <TextInput
-              label="Campaign Name"
+              label="Package Name"
               value={form.campaignName}
               onChange={e => update({ campaignName: e.target.value })}
               placeholder="e.g. AI Native Developer Campaign — Q2 2026"
@@ -895,15 +937,72 @@ export function SplitView({ onViewHistory }: { onViewHistory?: () => void }) {
             )}
           </div>
 
-          {/* Context — TextArea */}
+          {/* Additional Context — File Upload */}
           <div style={{ marginBottom: 24 }}>
-            <TextArea
-              label="Additional Context"
-              description="Specific angles, constraints, or examples to include."
-              value={form.context}
-              onChange={e => update({ context: e.target.value })}
-              placeholder="e.g. Emphasize production RAG use cases. Avoid naming competitors."
+            <Label style={{ display: 'block', marginBottom: 4 }}>Additional Context</Label>
+            <Body style={{ color: palette.gray.dark1, marginBottom: 8, fontSize: 12 } as React.CSSProperties}>
+              Upload files with angles, constraints, or examples to include.
+            </Body>
+            <input
+              id="context-file-input"
+              type="file"
+              multiple
+              accept=".pdf,.doc,.docx,.txt,.md"
+              style={{ display: 'none' }}
+              onChange={e => {
+                const newFiles = Array.from(e.target.files ?? [])
+                if (newFiles.length) update({ contextFiles: [...form.contextFiles, ...newFiles] })
+                e.target.value = ''
+              }}
             />
+            <div
+              onClick={() => document.getElementById('context-file-input')?.click()}
+              onDragOver={e => { e.preventDefault(); (e.currentTarget as HTMLDivElement).style.background = palette.gray.light3 }}
+              onDragLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'transparent' }}
+              onDrop={e => {
+                e.preventDefault();
+                (e.currentTarget as HTMLDivElement).style.background = 'transparent'
+                const dropped = Array.from(e.dataTransfer.files)
+                if (dropped.length) update({ contextFiles: [...form.contextFiles, ...dropped] })
+              }}
+              style={{
+                border: `1.5px dashed ${palette.gray.light1}`,
+                borderRadius: 6,
+                padding: '20px 16px',
+                textAlign: 'center',
+                cursor: 'pointer',
+                background: 'transparent',
+                transition: 'background 0.15s',
+              }}
+            >
+              <Body style={{ color: palette.gray.dark1, fontSize: 13 } as React.CSSProperties}>
+                Drop files here or <span style={{ color: palette.blue.base, textDecoration: 'underline' }}>browse</span>
+              </Body>
+              <Body style={{ color: palette.gray.base, fontSize: 11, marginTop: 4 } as React.CSSProperties}>
+                PDF, DOCX, TXT, MD
+              </Body>
+            </div>
+            {form.contextFiles.length > 0 && (
+              <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {form.contextFiles.map((file, i) => (
+                  <div key={i} style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '6px 10px', borderRadius: 4,
+                    background: palette.gray.light3,
+                  }}>
+                    <Body style={{ fontSize: 12, color: palette.black } as React.CSSProperties}>
+                      {file.name}
+                    </Body>
+                    <button
+                      onClick={() => update({ contextFiles: form.contextFiles.filter((_, j) => j !== i) })}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: palette.gray.dark1, fontSize: 14, lineHeight: 1, padding: '0 2px' }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
         </div>
@@ -912,11 +1011,7 @@ export function SplitView({ onViewHistory }: { onViewHistory?: () => void }) {
         <div style={{
           padding: '16px 24px', borderTop: `1px solid ${palette.gray.light2}`, flexShrink: 0,
         }}>
-          {submitted ? (
-            <Button variant="primary" onClick={handleReset}>
-              Start New Package
-            </Button>
-          ) : genStage !== 'done' ? (
+          {submitted ? null : genStage !== 'done' ? (
             <>
               <Button
                 variant="primary"
