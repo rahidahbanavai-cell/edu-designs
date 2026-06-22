@@ -306,9 +306,9 @@ export function SplitViewV5({ onViewHistory, onGenStageChange, onSubmittedChange
             <Card style={{ padding: '20px 24px', marginBottom: 20 }}>
               <Body style={{ fontWeight: 600, color: palette.black, marginBottom: 14 }}>Package summary</Body>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
-                <span style={{ fontSize: 12, color: palette.gray.dark1, width: 72, flexShrink: 0, paddingTop: 2, fontFamily: "'Euclid Circular A', sans-serif" }}>
+                <Body style={{ fontSize: 12, color: palette.gray.dark1, width: 72, flexShrink: 0, margin: 0 } as React.CSSProperties}>
                   Package
-                </span>
+                </Body>
                 <Body style={{ fontSize: 13 } as React.CSSProperties}>
                   {form.campaignName || <span style={{ color: palette.gray.dark1, fontStyle: 'italic' }}>Untitled</span>}
                 </Body>
@@ -543,9 +543,9 @@ export function SplitViewV5({ onViewHistory, onGenStageChange, onSubmittedChange
                     background: 'transparent',
                   }} />
                   <div style={{ flex: 1 }}>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: palette.black }}>{f.label}</span>
+                    <Body style={{ fontSize: 12, fontWeight: 600, color: palette.black, margin: 0 } as React.CSSProperties}>{f.label}</Body>
                   </div>
-                  <span style={{ fontSize: 11, color: palette.gray.dark1 }}>{f.meta}</span>
+                  <Body style={{ fontSize: 11, color: palette.gray.dark1, margin: 0 } as React.CSSProperties}>{f.meta}</Body>
                 </div>
               ))}
             </div>
@@ -564,8 +564,8 @@ export function SplitViewV5({ onViewHistory, onGenStageChange, onSubmittedChange
                   background: palette.white,
                   textAlign: 'left',
                 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 2, color: palette.black }}>{t.label}</div>
-                  <div style={{ fontSize: 11, color: palette.gray.dark1 }}>{t.desc}</div>
+                  <Body style={{ fontSize: 12, fontWeight: 600, marginBottom: 2, color: palette.black, marginTop: 0 } as React.CSSProperties}>{t.label}</Body>
+                  <Body style={{ fontSize: 11, color: palette.gray.dark1, margin: 0 } as React.CSSProperties}>{t.desc}</Body>
                 </div>
               ))}
             </div>
