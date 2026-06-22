@@ -74,8 +74,8 @@ const STEPS = [
 const HOW_IT_WORKS = [
   {
     glyph: 'Edit',
-    title: 'Configure & Generate',
-    desc: 'Name your package, set your target audience, output formats, and tone. Click Generate Drafts and Ghostwriter produces polished content in seconds.',
+    title: 'Write Your Prompt & Generate',
+    desc: 'Name your package and write a prompt describing what to create. Attach supporting files if needed, then click Generate Drafts.',
   },
   {
     glyph: 'Download',
@@ -126,7 +126,7 @@ export function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
             maxWidth: 520, color: palette.gray.dark1, lineHeight: 1.75,
             marginBottom: 36, fontSize: 16, animationDelay: '0.1s',
           } as React.CSSProperties}>
-            Configure your package, choose your formats, and let Ghostwriter produce
+            Name your package, write a prompt, and let Ghostwriter produce
             polished drafts in minutes. Download, submit for external review, then return to record the outcome.
           </Body>
           <div className="gw3-animate" style={{ display: 'flex', gap: 12, animationDelay: '0.15s' }}>
