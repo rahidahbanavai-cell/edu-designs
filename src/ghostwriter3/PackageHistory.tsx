@@ -38,6 +38,15 @@ const INITIAL_PACKAGES: Pkg[] = [
     submittedAt: 'Jun 10, 2026',
   },
   {
+    id: 'serverless-launch',
+    name: 'MongoDB Serverless Launch Campaign',
+    status: 'in-review',
+    formats: ['Blog Post', 'Email Sequence'],
+    audience: 'Tech Executives',
+    tone: 'Executive',
+    submittedAt: 'Jun 12, 2026',
+  },
+  {
     id: 'atlas-search-q2',
     name: 'Atlas Search — Q2 Launch',
     status: 'approved',
