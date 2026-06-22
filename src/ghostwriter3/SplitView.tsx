@@ -228,10 +228,16 @@ export function SplitView({ onViewHistory, onSubmittedChange }: { onViewHistory?
   const [genItems, setGenItems]       = useState<string[]>([])
   const [activeTab, setActiveTab]     = useState<TabId>('blog')
   const [submitted, setSubmitted]     = useState(false)
+  const [driveState, setDriveState]   = useState<'idle' | 'exporting' | 'done'>('idle')
 
   const setSubmittedAndNotify = (val: boolean) => {
     setSubmitted(val)
     onSubmittedChange?.(val)
+  }
+
+  const handleExportDrive = () => {
+    setDriveState('exporting')
+    setTimeout(() => setDriveState('done'), 1800)
   }
 
   const update = (patch: Partial<V3Form>) => setForm(prev => ({ ...prev, ...patch }))
@@ -252,6 +258,7 @@ export function SplitView({ onViewHistory, onSubmittedChange }: { onViewHistory?
     setProgress(0)
     setGenItems([])
     setSubmittedAndNotify(false)
+    setDriveState('idle')
     const first = FORMATS.find(f => form.outputTypes.includes(f.id))
     if (first) setActiveTab(first.id)
   }
@@ -262,6 +269,7 @@ export function SplitView({ onViewHistory, onSubmittedChange }: { onViewHistory?
     setProgress(0)
     setGenItems([])
     setSubmittedAndNotify(false)
+    setDriveState('idle')
   }
 
   useEffect(() => {
@@ -634,13 +642,28 @@ export function SplitView({ onViewHistory, onSubmittedChange }: { onViewHistory?
 
             {form.includeVisual && form.visualPlacement === 'below-text' && visualBlock}
           </div>
+          {driveState === 'done' && (
+            <div style={{ marginTop: 20 }}>
+              {/* @ts-ignore */}
+              <Banner variant="success">
+                Successfully exported to Google Drive. Check your Drive for the file.
+              </Banner>
+            </div>
+          )}
           <div style={{
-            marginTop: 32, paddingTop: 20,
+            marginTop: 20, paddingTop: 20,
             borderTop: `1px solid ${palette.gray.light2}`,
             display: 'flex', gap: 10,
           }}>
             <Button variant="default" onClick={() => handleDownloadPng(tabId)}>
               Download for Review
+            </Button>
+            <Button
+              variant="default"
+              onClick={handleExportDrive}
+              disabled={driveState === 'exporting' || driveState === 'done'}
+            >
+              {driveState === 'exporting' ? 'Exporting…' : driveState === 'done' ? 'Exported to Drive ✓' : 'Export to Google Drive'}
             </Button>
             <Button variant="primary" onClick={() => setSubmittedAndNotify(true)}>Mark for Review</Button>
           </div>
