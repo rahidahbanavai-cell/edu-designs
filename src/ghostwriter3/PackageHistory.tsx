@@ -6,6 +6,7 @@ import { Chip }         from '@leafygreen-ui/chip'
 import { Card }         from '@leafygreen-ui/card'
 import { Stepper, Step } from '@leafygreen-ui/stepper'
 import { H3, Body, Overline } from '@leafygreen-ui/typography'
+import { TextArea } from '@leafygreen-ui/text-area'
 import { palette } from '../tokens'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -158,11 +159,8 @@ export function PackageHistory({ onBack }: { onBack: () => void }) {
                 </div>
                 <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const, marginBottom: 8 }}>
                   {pkg.formats.map(f => (
-                    <span key={f} style={{
-                      fontSize: 10, padding: '2px 7px', borderRadius: 4,
-                      background: palette.gray.light2, color: palette.gray.dark1,
-                      fontFamily: "'Euclid Circular A', sans-serif",
-                    }}>{f}</span>
+                    // @ts-ignore
+                    <Chip key={f} label={f} variant="gray" />
                   ))}
                 </div>
                 <Body style={{ fontSize: 11, color: palette.gray.dark1 } as React.CSSProperties}>
@@ -258,25 +256,16 @@ function DetailInReview({ pkg, onApprove, onDeny }: {
         </Card>
       ) : (
         <Card style={{ padding: '20px 24px' }}>
-          <Overline style={{ display: 'block', marginBottom: 8, color: palette.gray.dark1 }}>REASON FOR DENIAL</Overline>
-          <Body style={{ color: palette.gray.dark1, marginBottom: 12 } as React.CSSProperties}>
-            Enter the reason provided by your reviewer so you can reference it later.
-          </Body>
-          <textarea
-            value={denialReason}
-            onChange={e => setDenialReason(e.target.value)}
-            placeholder="e.g. Several product claims are not aligned with current documentation…"
-            rows={4}
-            style={{
-              width: '100%', boxSizing: 'border-box' as const,
-              padding: '10px 12px', borderRadius: 6,
-              border: `1px solid ${palette.gray.light1}`,
-              fontFamily: "'Euclid Circular A', sans-serif",
-              fontSize: 13, color: palette.black,
-              resize: 'vertical' as const, outline: 'none',
-              marginBottom: 16,
-            }}
-          />
+          <div style={{ marginBottom: 20 }}>
+            {/* @ts-ignore */}
+            <TextArea
+              label="Reason for Denial"
+              description="Enter the reason provided by your reviewer so you can reference it later."
+              value={denialReason}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDenialReason(e.target.value)}
+              placeholder="e.g. Several product claims are not aligned with current documentation…"
+            />
+          </div>
           <div style={{ display: 'flex', gap: 12 }}>
             <Button
               variant="danger"

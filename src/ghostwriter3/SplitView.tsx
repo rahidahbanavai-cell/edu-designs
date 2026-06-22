@@ -819,11 +819,8 @@ export function SplitView({ onViewHistory, onSubmittedChange }: { onViewHistory?
                     textAlign: 'left', fontFamily: "'Euclid Circular A', sans-serif",
                     transition: 'all 0.1s',
                   }}>
-                    <div style={{
-                      fontSize: 12, fontWeight: 600, marginBottom: 2,
-                      color: on ? palette.green.dark2 : palette.black,
-                    }}>{a.label}</div>
-                    <div style={{ fontSize: 11, color: palette.gray.dark1 }}>{a.desc}</div>
+                    <Body style={{ fontSize: 12, fontWeight: 600, marginBottom: 2, marginTop: 0, color: on ? palette.green.dark2 : palette.black } as React.CSSProperties}>{a.label}</Body>
+                    <Body style={{ fontSize: 11, color: palette.gray.dark1, margin: 0 } as React.CSSProperties}>{a.desc}</Body>
                   </button>
                 )
               })}
@@ -857,9 +854,9 @@ export function SplitView({ onViewHistory, onSubmittedChange }: { onViewHistory?
                       {on && <span style={{ color: palette.white, fontSize: 9, fontWeight: 700 }}>✓</span>}
                     </div>
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: palette.black }}>{f.label}</span>
+                      <Body style={{ fontSize: 12, fontWeight: 600, color: palette.black, margin: 0 } as React.CSSProperties}>{f.label}</Body>
                     </div>
-                    <span style={{ fontSize: 11, color: palette.gray.dark1 }}>{f.meta}</span>
+                    <Body style={{ fontSize: 11, color: palette.gray.dark1, margin: 0 } as React.CSSProperties}>{f.meta}</Body>
                   </button>
                 )
               })}
@@ -883,11 +880,8 @@ export function SplitView({ onViewHistory, onSubmittedChange }: { onViewHistory?
                     textAlign: 'left', fontFamily: "'Euclid Circular A', sans-serif",
                     transition: 'all 0.1s',
                   }}>
-                    <div style={{
-                      fontSize: 12, fontWeight: 600, marginBottom: 2,
-                      color: on ? palette.green.dark2 : palette.black,
-                    }}>{t.label}</div>
-                    <div style={{ fontSize: 11, color: palette.gray.dark1 }}>{t.desc}</div>
+                    <Body style={{ fontSize: 12, fontWeight: 600, marginBottom: 2, marginTop: 0, color: on ? palette.green.dark2 : palette.black } as React.CSSProperties}>{t.label}</Body>
+                    <Body style={{ fontSize: 11, color: palette.gray.dark1, margin: 0 } as React.CSSProperties}>{t.desc}</Body>
                   </button>
                 )
               })}
@@ -947,10 +941,8 @@ export function SplitView({ onViewHistory, onSubmittedChange }: { onViewHistory?
                           {on && <div style={{ width: 6, height: 6, borderRadius: '50%', background: palette.white }} />}
                         </div>
                         <div>
-                          <div style={{ fontSize: 12, fontWeight: 600, color: on ? palette.green.dark2 : palette.black }}>
-                            {p.label}
-                          </div>
-                          <div style={{ fontSize: 11, color: palette.gray.dark1 }}>{p.desc}</div>
+                          <Body style={{ fontSize: 12, fontWeight: 600, color: on ? palette.green.dark2 : palette.black, margin: 0 } as React.CSSProperties}>{p.label}</Body>
+                          <Body style={{ fontSize: 11, color: palette.gray.dark1, margin: 0 } as React.CSSProperties}>{p.desc}</Body>
                         </div>
                       </button>
                     )
@@ -1016,12 +1008,13 @@ export function SplitView({ onViewHistory, onSubmittedChange }: { onViewHistory?
                     <Body style={{ fontSize: 12, color: palette.black } as React.CSSProperties}>
                       {file.name}
                     </Body>
-                    <button
+                    <Button
+                      variant="default"
+                      size="xsmall"
                       onClick={() => update({ contextFiles: form.contextFiles.filter((_, j) => j !== i) })}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: palette.gray.dark1, fontSize: 14, lineHeight: 1, padding: '0 2px' }}
                     >
                       ×
-                    </button>
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -1130,12 +1123,9 @@ export function SplitView({ onViewHistory, onSubmittedChange }: { onViewHistory?
 function SummaryRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-      <span style={{
-        fontSize: 12, color: palette.gray.dark1, width: 72, flexShrink: 0,
-        paddingTop: 2, fontFamily: "'Euclid Circular A', sans-serif",
-      }}>
+      <Body style={{ fontSize: 12, color: palette.gray.dark1, width: 72, flexShrink: 0, paddingTop: 2, margin: 0 } as React.CSSProperties}>
         {label}
-      </span>
+      </Body>
       <div style={{ flex: 1 }}>{children}</div>
     </div>
   )

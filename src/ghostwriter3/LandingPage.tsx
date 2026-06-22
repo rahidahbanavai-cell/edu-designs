@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Button } from '@leafygreen-ui/button'
+import IconButton from '@leafygreen-ui/icon-button'
 import { Card } from '@leafygreen-ui/card'
 import { H1, H2, H3, Body, Overline, Label } from '@leafygreen-ui/typography'
 import { Stepper, Step } from '@leafygreen-ui/stepper'
@@ -278,17 +279,10 @@ export function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
                   How to Use a Ghostwriter
                 </Body>
               </div>
-              <button
-                onClick={closeModal}
-                style={{
-                  width: 32, height: 32, borderRadius: '50%',
-                  background: palette.gray.light2, border: 'none', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 16, color: palette.gray.dark1, flexShrink: 0,
-                }}
-              >
-                ×
-              </button>
+              {/* @ts-ignore */}
+              <IconButton aria-label="Close" onClick={closeModal}>
+                <Icon glyph="X" />
+              </IconButton>
             </div>
 
             {/* LG Stepper */}
@@ -377,12 +371,9 @@ function PipelineNode({ label, desc, color, bg, border, checkmark }: {
             <span style={{ color: palette.white, fontSize: 9, fontWeight: 700 }}>✓</span>
           </div>
         )}
-        <span style={{
-          fontSize: 13, fontWeight: 600, color,
-          fontFamily: "'Euclid Circular A', sans-serif",
-        }}>
+        <Body style={{ fontSize: 13, fontWeight: 600, color, margin: 0 } as React.CSSProperties}>
           {label}
-        </span>
+        </Body>
       </div>
       <Body style={{ fontSize: 11, color: palette.gray.dark1, lineHeight: 1.5, maxWidth: 180 } as React.CSSProperties}>
         {desc}
