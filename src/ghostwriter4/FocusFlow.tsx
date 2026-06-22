@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { Button } from '@leafygreen-ui/button'
-import { Badge } from '@leafygreen-ui/badge'
 import { Card } from '@leafygreen-ui/card'
 import TextInput from '@leafygreen-ui/text-input'
 // @ts-ignore
 import { Tabs, Tab } from '@leafygreen-ui/tabs'
 import { H2, H3, Body, Overline } from '@leafygreen-ui/typography'
+// @ts-ignore
+import { Stepper, Step } from '@leafygreen-ui/stepper'
 import Checkbox from '@leafygreen-ui/checkbox'
 import Banner from '@leafygreen-ui/banner'
 import { palette } from '../tokens'
@@ -576,6 +577,98 @@ export function FocusFlow({ onViewHistory }: { onViewHistory?: () => void } = {}
     const tone     = TONES.find(t => t.id === form.tone)
     const tabContents: Record<string, string> = { blog: FULL_BLOG, linkedin: FULL_LINKEDIN, email: FULL_EMAIL }
 
+    // ── Confirmation page ──────────────────────────────────────────────────
+    if (submitted) {
+      return (
+        <div style={{ flex: 1, overflowY: 'auto', background: palette.gray.light3 }}>
+          <div style={{ padding: '48px 32px' }}>
+            <div style={{ maxWidth: 640, margin: '0 auto' }}>
+
+              {/* Success mark */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 36, textAlign: 'center' }}>
+                <div style={{
+                  width: 64, height: 64, borderRadius: '50%',
+                  background: palette.green.dark1,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  marginBottom: 20,
+                }}>
+                  <span style={{ color: palette.white, fontSize: 28, fontWeight: 700, lineHeight: 1 }}>✓</span>
+                </div>
+                <H2 style={{ marginBottom: 6 }}>Marked for Review</H2>
+                <Body style={{ color: palette.gray.dark1 } as React.CSSProperties}>
+                  Submit your downloaded PDF to your reviewer. Once you receive their decision, return here to record it in Package History.
+                </Body>
+              </div>
+
+              {/* Package summary */}
+              <Card style={{ padding: '20px 24px', marginBottom: 20 }}>
+                <Body style={{ fontWeight: 600, color: palette.black, marginBottom: 14 }}>Package summary</Body>
+                {[
+                  { label: 'Package',  value: form.name || 'Untitled package' },
+                  ...(audience ? [{ label: 'Audience', value: audience.label }] : []),
+                  { label: 'Formats',  value: selectedFormats.map(f => f.label).join(', ') },
+                  ...(tone ? [{ label: 'Tone', value: tone.label }] : []),
+                ].map(row => (
+                  <div key={row.label} style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 8 }}>
+                    <span style={{ fontSize: 12, color: palette.gray.dark1, width: 72, flexShrink: 0, fontFamily: "'Euclid Circular A', sans-serif" }}>
+                      {row.label}
+                    </span>
+                    <Body style={{ fontSize: 13 } as React.CSSProperties}>{row.value}</Body>
+                  </div>
+                ))}
+              </Card>
+
+              {/* What happens next */}
+              <Card style={{ padding: '20px 24px', marginBottom: 28 }}>
+                <Body style={{ fontWeight: 600, color: palette.black, marginBottom: 18 }}>What happens next</Body>
+                {/* @ts-ignore */}
+                <Stepper currentStep={1}>
+                  {/* @ts-ignore */}
+                  <Step>Marked for review</Step>
+                  {/* @ts-ignore */}
+                  <Step>Submit to reviewer</Step>
+                  {/* @ts-ignore */}
+                  <Step>Await decision</Step>
+                  {/* @ts-ignore */}
+                  <Step>Record outcome</Step>
+                </Stepper>
+                <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {[
+                    { label: 'Marked for review',  detail: 'Package is logged and your PDF is ready to send.',                         done: true  },
+                    { label: 'Submit to reviewer', detail: 'Share the downloaded PDF with your content reviewer outside Ghostwriter.',  done: false },
+                    { label: 'Await decision',     detail: 'Your reviewer will approve or deny the package.',                          done: false },
+                    { label: 'Record outcome',     detail: 'Return to Package History and mark the decision you received.',             done: false },
+                  ].map(s => (
+                    <div key={s.label} style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
+                      <Body style={{ fontSize: 12, fontWeight: 600, color: s.done ? palette.black : palette.gray.dark1, whiteSpace: 'nowrap' as const } as React.CSSProperties}>
+                        {s.label}:
+                      </Body>
+                      <Body style={{ fontSize: 12, color: palette.gray.dark1 } as React.CSSProperties}>
+                        {s.detail}
+                      </Body>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+
+              {/* Actions */}
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const }}>
+                {onViewHistory && (
+                  <Button variant="primary" onClick={onViewHistory}>
+                    Go to Package History
+                  </Button>
+                )}
+                <Button variant="default" onClick={() => setSubmitted(false)}>
+                  Edit Draft
+                </Button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )
+    }
+
     return (
       <div style={{ flex: 1, overflowY: 'auto', padding: '80px 32px 48px', position: 'relative' }}>
         <div style={{ position: 'absolute', top: 16, left: 32 }}>
@@ -647,8 +740,7 @@ export function FocusFlow({ onViewHistory }: { onViewHistory?: () => void } = {}
                 // @ts-ignore
                 <Tab key={fmt.id} name={fmt.label}>
                   <div style={{ padding: '24px 24px 28px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                      <Badge variant="yellow">Pending Review</Badge>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: 16 }}>
                       <Overline style={{ color: palette.gray.dark2 }}>{fmt.meta}</Overline>
                     </div>
                     {renderTabContent(tabContents[fmt.id])}
