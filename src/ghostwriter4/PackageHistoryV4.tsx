@@ -20,6 +20,7 @@ interface Package {
   formats: string[]
   submittedDate: string
   hasVisual: boolean
+  denialReason?: string
 }
 
 // ─── Mock data ────────────────────────────────────────────────────────────────
@@ -60,6 +61,7 @@ const PACKAGES: Package[] = [
     formats: ['Blog Post', 'LinkedIn Thread'],
     submittedDate: 'May 22, 2026',
     hasVisual: false,
+    denialReason: 'The content contained product capability claims that are not yet publicly available and cannot be published in customer-facing materials at this time. The overall framing also conflicts with current campaign messaging priorities. This package cannot be revised — please start a new package that accurately reflects current MongoDB capabilities.',
   },
 ]
 
@@ -108,12 +110,30 @@ const BANNER_MESSAGES: Record<PkgStatus, string> = {
 // ─── PackageHistoryV4 ─────────────────────────────────────────────────────────
 
 export function PackageHistoryV4({ onBack }: { onBack: () => void }) {
-  const [selectedId, setSelectedId] = useState('agentic-apps')
-  const [packages]                  = useState<Package[]>(PACKAGES)
+  const [selectedId, setSelectedId]     = useState('agentic-apps')
+  const [packages, setPackages]         = useState<Package[]>(PACKAGES)
+  const [denying, setDenying]           = useState(false)
+  const [denialReason, setDenialReason] = useState('')
 
   const selected       = packages.find(p => p.id === selectedId)!
   const meta           = STATUS_META[selected.status]
   const currentStepIdx = meta.stepIdx
+
+  const selectPackage = (id: string) => {
+    setSelectedId(id)
+    setDenying(false)
+    setDenialReason('')
+  }
+
+  const handleApprove = () => {
+    setPackages(prev => prev.map(p => p.id === selectedId ? { ...p, status: 'approved' as const } : p))
+  }
+
+  const handleDeny = (reason: string) => {
+    setPackages(prev => prev.map(p => p.id === selectedId ? { ...p, status: 'denied' as const, denialReason: reason } : p))
+    setDenying(false)
+    setDenialReason('')
+  }
 
   return (
     <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
@@ -140,7 +160,7 @@ export function PackageHistoryV4({ onBack }: { onBack: () => void }) {
           return (
             <button
               key={pkg.id}
-              onClick={() => setSelectedId(pkg.id)}
+              onClick={() => selectPackage(pkg.id)}
               style={{
                 display: 'block', width: '100%', textAlign: 'left',
                 padding: '14px 20px', border: 'none', cursor: 'pointer',
@@ -227,9 +247,56 @@ export function PackageHistoryV4({ onBack }: { onBack: () => void }) {
         {selected.status === 'in-review' && (
           <div>
             <H3 style={{ marginBottom: 16 }}>Draft Preview</H3>
-            <Card style={{ padding: '24px 28px' }}>
+            <Card style={{ padding: '24px 28px', marginBottom: 28 }}>
               <pre style={draftPreStyle}>{DRAFT_EXCERPT}</pre>
             </Card>
+
+            {!denying ? (
+              <Card style={{ padding: '20px 24px' }}>
+                <Overline style={{ display: 'block', marginBottom: 14, color: palette.gray.dark1 }}>RECORD DECISION</Overline>
+                <Body style={{ color: palette.gray.dark1, marginBottom: 20 } as React.CSSProperties}>
+                  Once you've received a decision from your external reviewer, record it below to update the package status.
+                </Body>
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <Button variant="primary" onClick={handleApprove}>Mark as Approved</Button>
+                  <Button variant="danger" onClick={() => setDenying(true)}>Mark as Denied</Button>
+                </div>
+              </Card>
+            ) : (
+              <Card style={{ padding: '20px 24px' }}>
+                <Overline style={{ display: 'block', marginBottom: 8, color: palette.gray.dark1 }}>REASON FOR DENIAL</Overline>
+                <Body style={{ color: palette.gray.dark1, marginBottom: 12 } as React.CSSProperties}>
+                  Enter the reason provided by your reviewer so you can reference it later.
+                </Body>
+                <textarea
+                  value={denialReason}
+                  onChange={e => setDenialReason(e.target.value)}
+                  placeholder="e.g. Several product claims are not aligned with current documentation…"
+                  rows={4}
+                  style={{
+                    width: '100%', boxSizing: 'border-box' as const,
+                    padding: '10px 12px', borderRadius: 6,
+                    border: `1px solid ${palette.gray.light1}`,
+                    fontFamily: "'Euclid Circular A', sans-serif",
+                    fontSize: 13, color: palette.black,
+                    resize: 'vertical' as const, outline: 'none',
+                    marginBottom: 16,
+                  }}
+                />
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <Button
+                    variant="danger"
+                    disabled={!denialReason.trim()}
+                    onClick={() => handleDeny(denialReason.trim())}
+                  >
+                    Confirm Denial
+                  </Button>
+                  <Button variant="default" onClick={() => { setDenying(false); setDenialReason('') }}>
+                    Cancel
+                  </Button>
+                </div>
+              </Card>
+            )}
           </div>
         )}
 
@@ -247,12 +314,14 @@ export function PackageHistoryV4({ onBack }: { onBack: () => void }) {
         {/* ── Denied detail ────────────────────────────────────────────── */}
         {selected.status === 'denied' && (
           <div>
-            <Card style={{ padding: '20px 24px', marginBottom: 24, borderLeft: `4px solid ${palette.red}`, background: '#FFF3F1' }}>
-              <Overline style={{ display: 'block', marginBottom: 8 }}>Denial Reason</Overline>
-              <Body style={{ color: palette.black, lineHeight: 1.7 } as React.CSSProperties}>
-                The content contained product capability claims that are not yet publicly available and cannot be published in customer-facing materials at this time. The overall framing also conflicts with current campaign messaging priorities. This package cannot be revised — please start a new package that accurately reflects current MongoDB capabilities.
-              </Body>
-            </Card>
+            {selected.denialReason && (
+              <Card style={{ padding: '20px 24px', marginBottom: 24, borderLeft: `4px solid ${palette.red}`, background: '#FFF3F1' }}>
+                <Overline style={{ display: 'block', marginBottom: 8 }}>Denial Reason</Overline>
+                <Body style={{ color: palette.black, lineHeight: 1.7 } as React.CSSProperties}>
+                  {selected.denialReason}
+                </Body>
+              </Card>
+            )}
             <Button variant="primary" onClick={onBack}>Start a New Package →</Button>
           </div>
         )}

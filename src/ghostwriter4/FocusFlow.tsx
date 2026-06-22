@@ -233,6 +233,7 @@ export function FocusFlow({ onViewHistory }: { onViewHistory?: () => void } = {}
   const [genProgress, setGenProgress]       = useState(0)
   const [submitted, setSubmitted]           = useState(false)
   const [activeTab, setActiveTab]           = useState(0)
+  const [driveState, setDriveState]         = useState<'idle' | 'exporting' | 'done'>('idle')
   const stepRefs                            = useRef<(HTMLDivElement | null)[]>([])
 
   const update = (patch: Partial<V4Form>) => setForm(prev => ({ ...prev, ...patch }))
@@ -585,6 +586,7 @@ export function FocusFlow({ onViewHistory }: { onViewHistory?: () => void } = {}
             setForm(defaultForm)
             setSubmitted(false)
             setActiveTab(0)
+            setDriveState('idle')
           }}>
             ← Start over
           </Button>
@@ -622,21 +624,17 @@ export function FocusFlow({ onViewHistory }: { onViewHistory?: () => void } = {}
           {/* Header */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
             <H3 style={{ margin: 0 }}>Your content drafts</H3>
-            {!submitted ? (
-              <Button variant="primary" onClick={() => setSubmitted(true)}>Submit for Review →</Button>
-            ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <div style={{
-                    width: 18, height: 18, borderRadius: '50%', background: palette.green.dark1,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                  }}>
-                    <span style={{ color: palette.white, fontSize: 10, fontWeight: 700 }}>✓</span>
-                  </div>
-                  <Body style={{ color: palette.green.dark2, fontWeight: 600, margin: 0 } as React.CSSProperties}>
-                    Submitted for review
-                  </Body>
+            {submitted && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{
+                  width: 18, height: 18, borderRadius: '50%', background: palette.green.dark1,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                }}>
+                  <span style={{ color: palette.white, fontSize: 10, fontWeight: 700 }}>✓</span>
                 </div>
+                <Body style={{ color: palette.green.dark2, fontWeight: 600, margin: 0 } as React.CSSProperties}>
+                  Submitted for review
+                </Body>
               </div>
             )}
           </div>
@@ -659,6 +657,34 @@ export function FocusFlow({ onViewHistory }: { onViewHistory?: () => void } = {}
               ))}
             </Tabs>
           </Card>
+
+          {/* Drive success banner */}
+          {driveState === 'done' && (
+            <div style={{ marginTop: 20 }}>
+              {/* @ts-ignore */}
+              <Banner variant="success">
+                Successfully exported to Google Drive. Check your Drive for the file.
+              </Banner>
+            </div>
+          )}
+
+          {/* Action buttons */}
+          <div style={{ marginTop: 20, display: 'flex', gap: 12, alignItems: 'center' }}>
+            <Button variant="default">Download for Review</Button>
+            <Button
+              variant="default"
+              disabled={driveState !== 'idle'}
+              onClick={() => {
+                setDriveState('exporting')
+                setTimeout(() => setDriveState('done'), 1800)
+              }}
+            >
+              {driveState === 'exporting' ? 'Exporting…' : driveState === 'done' ? 'Exported ✓' : 'Export to Google Drive'}
+            </Button>
+            {!submitted && (
+              <Button variant="primary" onClick={() => setSubmitted(true)}>Submit for Review →</Button>
+            )}
+          </div>
 
         </div>
       </div>
