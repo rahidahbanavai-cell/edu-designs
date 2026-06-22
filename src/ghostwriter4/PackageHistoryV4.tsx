@@ -6,7 +6,6 @@ import { Card } from '@leafygreen-ui/card'
 import { Stepper, Step } from '@leafygreen-ui/stepper'
 import { H2, H3, Body, Overline } from '@leafygreen-ui/typography'
 import Banner from '@leafygreen-ui/banner'
-import { TextArea } from '@leafygreen-ui/text-area'
 import { palette } from '../tokens'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -306,15 +305,10 @@ export function PackageHistoryV4({ onBack }: { onBack: () => void }) {
         {selected.status === 'denied' && (
           <div>
             {selected.denialReason && (
-              <div style={{ marginBottom: 24 }}>
-                {/* @ts-ignore */}
-                <TextArea
-                  label="Denial Reason"
-                  value={selected.denialReason}
-                  disabled
-                  rows={6}
-                />
-              </div>
+              <Card style={{ padding: '20px 24px', marginBottom: 24 }}>
+                <Overline style={{ display: 'block', marginBottom: 8, color: palette.gray.dark1 }}>REASON FOR DENIAL</Overline>
+                <Body style={{ color: palette.black, lineHeight: 1.7 }}>{selected.denialReason}</Body>
+              </Card>
             )}
             <Button variant="primary" onClick={onBack}>Start a New Package →</Button>
           </div>
