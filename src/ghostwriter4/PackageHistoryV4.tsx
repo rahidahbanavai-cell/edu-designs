@@ -247,11 +247,6 @@ export function PackageHistoryV4({ onBack }: { onBack: () => void }) {
         {/* ── In Review ────────────────────────────────────────────────── */}
         {selected.status === 'in-review' && (
           <div>
-            <H3 style={{ marginBottom: 16 }}>Draft Preview</H3>
-            <Card style={{ padding: '24px 28px', marginBottom: 28 }}>
-              <pre style={draftPreStyle}>{DRAFT_EXCERPT}</pre>
-            </Card>
-
             {!denying ? (
               <Card style={{ padding: '20px 24px' }}>
                 <Overline style={{ display: 'block', marginBottom: 14, color: palette.gray.dark1 }}>RECORD DECISION</Overline>
