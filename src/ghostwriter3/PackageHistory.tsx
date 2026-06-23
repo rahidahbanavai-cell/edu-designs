@@ -172,11 +172,7 @@ export function PackageHistory({ onBack }: { onBack: () => void }) {
           })}
         </div>
 
-        <div style={{ padding: '14px 12px', borderTop: `1px solid ${palette.gray.light2}`, flexShrink: 0 }}>
-          <Button variant="primary" onClick={onBack}>
-            + New Package
-          </Button>
-        </div>
+
       </div>
 
       {/* ── Right: detail panel ────────────────────────────────────────── */}
