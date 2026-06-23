@@ -4,7 +4,7 @@ import { Button } from '@leafygreen-ui/button'
 import { Badge } from '@leafygreen-ui/badge'
 import { palette } from '../tokens'
 import { SplitViewV5 } from './SplitViewV5'
-import { LandingPage } from '../ghostwriter3/LandingPage'
+import { LandingPageV5 as LandingPage } from './LandingPageV5'
 import { PackageHistory } from '../ghostwriter3/PackageHistory'
 
 type View = 'landing' | 'editor' | 'history'
