@@ -14,26 +14,6 @@ const MAIN_PATH = [
   { id: 'review', label: 'In Review',     desc: 'Downloaded and submitted externally. Marked for review in Ghostwriter while you await a decision.', color: '#92400E', bg: '#FEF3C7', border: '#FCD34D' },
 ]
 
-const OUTCOMES = [
-  {
-    id: 'approved',
-    label: 'Approved',
-    desc: 'Reviewer decision recorded — drafts are ready to share with your audience.',
-    color: palette.green.dark2,
-    bg: palette.green.light3,
-    border: palette.green.dark1,
-    checkmark: true,
-  },
-  {
-    id: 'denied',
-    label: 'Denied',
-    desc: 'Draft does not meet content standards. Record the denial reason in Package History for your reference.',
-    color: '#991B1B',
-    bg: '#FEE2E2',
-    border: '#FCA5A5',
-    checkmark: false,
-  },
-]
 
 // ─── Walkthrough steps ────────────────────────────────────────────────────────
 
@@ -63,11 +43,6 @@ const STEPS = [
     desc: 'Click "Mark for Review" to log the package as in review inside Ghostwriter. Then submit the PDF to your reviewer outside the tool and await their response.',
     illustration: <StepIllustration4 />,
   },
-  {
-    title: 'Record Decision',
-    desc: 'When your reviewer responds, return to Package History and find the package. Record their decision — approved or denied. The package status updates immediately.',
-    illustration: <StepIllustrationRecord />,
-  },
 ]
 
 // ─── How it works cards ───────────────────────────────────────────────────────
@@ -82,11 +57,6 @@ const HOW_IT_WORKS = [
     glyph: 'Download',
     title: 'Download for Review',
     desc: 'Download your drafts as a PDF and click "Mark for Review" to log the package. Submit the PDF to your reviewer outside Ghostwriter.',
-  },
-  {
-    glyph: 'CheckmarkWithCircle',
-    title: 'Record the Decision',
-    desc: 'Once your reviewer responds, return to Package History to record the outcome. Packages are marked approved or denied — no changes requested.',
   },
 ]
 
@@ -152,13 +122,13 @@ export function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
               <Overline style={{ display: 'block', marginBottom: 10, color: palette.green.dark2 }}>
                 CONTENT LIFECYCLE
               </Overline>
-              <H2 style={{ marginBottom: 10 }}>From first draft to approved content</H2>
+              <H2 style={{ marginBottom: 10 }}>From first draft to reviewed content</H2>
               <Body style={{ color: palette.gray.dark1, maxWidth: 480, margin: '0 auto' }}>
                 Every package goes through a structured review process before it reaches your audience.
               </Body>
             </div>
 
-            {/* Pipeline: Draft → In Review → Approved / Denied */}
+            {/* Pipeline: Draft → In Review */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 32 }}>
 
               <PipelineNode
@@ -179,32 +149,6 @@ export function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
                 border={MAIN_PATH[1].border} checkmark={false}
               />
 
-              {/* Angled fork arrows + outcomes */}
-              <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                <svg width="72" height="220" style={{ flexShrink: 0 }}>
-                  <defs>
-                    {/* markerUnits="userSpaceOnUse" makes dimensions literal px, not scaled by strokeWidth */}
-                    <marker id="fork-arrow" markerWidth="6" markerHeight="10" refX="6" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-                      <polygon points="0 0, 6 5, 0 10" fill={palette.gray.light1} />
-                    </marker>
-                  </defs>
-                  {/* Approved — angles upward */}
-                  <line x1="4" y1="110" x2="64" y2="40" stroke={palette.gray.light1} strokeWidth="2" markerEnd="url(#fork-arrow)" />
-                  {/* Denied — angles downward */}
-                  <line x1="4" y1="110" x2="64" y2="180" stroke={palette.gray.light1} strokeWidth="2" markerEnd="url(#fork-arrow)" />
-                </svg>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
-                  {OUTCOMES.map(o => (
-                    <PipelineNode
-                      key={o.id}
-                      label={o.label} desc={o.desc}
-                      color={o.color} bg={o.bg}
-                      border={o.border} checkmark={o.checkmark}
-                    />
-                  ))}
-                </div>
-              </div>
-
             </div>
           </div>
         </section>
@@ -216,7 +160,7 @@ export function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
               <Overline style={{ display: 'block', marginBottom: 10, color: palette.green.dark2 }}>
                 HOW IT WORKS
               </Overline>
-              <H2>Three steps to review-ready content</H2>
+              <H2>Two steps to review-ready content</H2>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
               {HOW_IT_WORKS.map((item, i) => (
@@ -299,8 +243,6 @@ export function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
                 <Step>Download</Step>
                 {/* @ts-ignore */}
                 <Step>Mark</Step>
-                {/* @ts-ignore */}
-                <Step>Record</Step>
               </Stepper>
             </div>
 
