@@ -505,9 +505,6 @@ function StepIllustration4() {
 function StepIllustration5() {
   return (
     <div style={{ padding: '20px 24px' }}>
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12 }}>
-        <div style={{ padding: '3px 10px', borderRadius: 4, background: palette.green.light3, border: `1px solid ${palette.green.dark1}`, fontSize: 11, fontWeight: 600, color: palette.green.dark2, fontFamily: 'inherit' }}>Ready for review</div>
-      </div>
       <div style={{ fontSize: 12, color: palette.black, lineHeight: 1.6, marginBottom: 14, fontFamily: "'Euclid Circular A', sans-serif" }}>
         Building Production RAG: What We Got Wrong (And How to Fix It)
       </div>
