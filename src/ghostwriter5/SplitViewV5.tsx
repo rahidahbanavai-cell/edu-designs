@@ -415,9 +415,7 @@ export function SplitViewV5({ onViewHistory, onGenStageChange, onSubmittedChange
               >
                 {driveState === 'exporting' ? 'Exporting…' : driveState === 'done' ? 'Exported to Drive ✓' : 'Export to Google Drive'}
               </Button>
-              <Button variant="primary" onClick={() => setSubmittedAndNotify(true)}>
-                Mark for Review
-              </Button>
+
             </div>
           </div>
         </div>
