@@ -763,8 +763,8 @@ export function SplitView({ onViewHistory, onSubmittedChange, onGenStageChange }
   return (
     <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
 
-      {/* Left panel: form */}
-      <div style={{
+      {/* Left panel: form — hidden once generation starts */}
+      {genStage === 'idle' && <div style={{
         width: 360, borderRight: `1px solid ${palette.gray.light2}`,
         display: 'flex', flexDirection: 'column', flexShrink: 0,
       }}>
@@ -1025,7 +1025,7 @@ export function SplitView({ onViewHistory, onSubmittedChange, onGenStageChange }
             </>
           ) : null}
         </div>
-      </div>
+      </div>}
 
       {/* Right panel */}
       <div style={{
