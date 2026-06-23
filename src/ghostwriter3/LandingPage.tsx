@@ -516,6 +516,7 @@ function StepIllustration5() {
         display: 'flex', gap: 8,
       }}>
         <div style={{ padding: '6px 14px', borderRadius: 5, border: `1px solid ${palette.gray.light2}`, fontSize: 11, color: palette.gray.dark1, fontFamily: 'inherit' }}>Download for Review</div>
+        <div style={{ padding: '6px 14px', borderRadius: 5, border: `1px solid ${palette.gray.light2}`, fontSize: 11, color: palette.gray.dark1, fontFamily: 'inherit' }}>Export to Google Drive</div>
         <div style={{ padding: '6px 14px', borderRadius: 5, background: palette.green.dark2, fontSize: 11, color: palette.white, fontWeight: 600, fontFamily: 'inherit' }}>Mark for Review</div>
       </div>
     </div>
