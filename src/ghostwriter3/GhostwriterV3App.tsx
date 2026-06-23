@@ -55,10 +55,7 @@ export function GhostwriterV3App() {
           <Button variant="default" onClick={() => setView('history')}>Package History</Button>
         )}
         {view === 'editor' && !editorSubmitted && !editorStarted && (
-          <div style={{ display: 'flex', gap: 8 }}>
-            <Button variant="default" onClick={() => setView('history')}>Package History</Button>
-            <Button variant="default" onClick={() => setView('landing')}>Overview</Button>
-          </div>
+          <Button variant="default" onClick={() => setView('history')}>Package History</Button>
         )}
         {view === 'editor' && !editorSubmitted && editorDone && (
           <Button variant="default" onClick={handleStartNew}>Start New Package</Button>
