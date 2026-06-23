@@ -13,11 +13,13 @@ export function GhostwriterV3App() {
   const [view, setView] = useState<View>('landing')
   const [editorSubmitted, setEditorSubmitted] = useState(false)
   const [editorDone, setEditorDone] = useState(false)
+  const [editorStarted, setEditorStarted] = useState(false)
   const [resetKey, setResetKey] = useState(0)
 
   const handleStartNew = () => {
     setResetKey(k => k + 1)
     setEditorDone(false)
+    setEditorStarted(false)
     setEditorSubmitted(false)
   }
 
@@ -52,14 +54,14 @@ export function GhostwriterV3App() {
         {view === 'landing' && (
           <Button variant="default" onClick={() => setView('history')}>Package History</Button>
         )}
-        {view === 'editor' && !editorSubmitted && (
+        {view === 'editor' && !editorSubmitted && !editorStarted && (
           <div style={{ display: 'flex', gap: 8 }}>
             <Button variant="default" onClick={() => setView('history')}>Package History</Button>
-            {editorDone
-              ? <Button variant="default" onClick={handleStartNew}>Start New Package</Button>
-              : <Button variant="default" onClick={() => setView('landing')}>Overview</Button>
-            }
+            <Button variant="default" onClick={() => setView('landing')}>Overview</Button>
           </div>
+        )}
+        {view === 'editor' && !editorSubmitted && editorDone && (
+          <Button variant="default" onClick={handleStartNew}>Start New Package</Button>
         )}
         {view === 'history' && (
           <Button variant="default" onClick={() => setView('editor')}>Back to Editor</Button>
@@ -67,7 +69,7 @@ export function GhostwriterV3App() {
       </nav>
 
       {view === 'landing' && <LandingPage onGetStarted={() => setView('editor')} />}
-      {view === 'editor'  && <SplitView key={resetKey} onViewHistory={() => setView('history')} onSubmittedChange={setEditorSubmitted} onGenStageChange={stage => setEditorDone(stage === 'done')} />}
+      {view === 'editor'  && <SplitView key={resetKey} onViewHistory={() => setView('history')} onSubmittedChange={setEditorSubmitted} onGenStageChange={stage => { setEditorDone(stage === 'done'); setEditorStarted(stage !== 'idle') }} />}
       {view === 'history' && <PackageHistory onBack={() => setView('editor')} />}
     </div>
   )
