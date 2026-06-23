@@ -356,7 +356,7 @@ export function SplitViewV5({ onViewHistory, onGenStageChange, onSubmittedChange
                   Go to Package History
                 </Button>
               )}
-              <Button variant="default" onClick={() => setSubmittedAndNotify(false)}>
+              <Button variant="default" onClick={() => { setGenStage('idle'); setSubmittedAndNotify(false) }}>
                 Edit Draft
               </Button>
               {onStartNew && (
