@@ -26,7 +26,7 @@ const OUTCOMES = [
   },
   {
     id: 'denied',
-    label: 'Denied',
+    label: 'Try Again',
     desc: 'Draft does not meet content standards. Record the denial reason in Package History for your reference.',
     color: '#991B1B',
     bg: '#FEE2E2',
