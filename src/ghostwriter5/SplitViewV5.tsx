@@ -154,10 +154,11 @@ function LockedSection({ label, children }: { label: string; children: React.Rea
 
 // ─── SplitViewV5 ──────────────────────────────────────────────────────────────
 
-export function SplitViewV5({ onViewHistory, onGenStageChange, onSubmittedChange }: {
+export function SplitViewV5({ onViewHistory, onGenStageChange, onSubmittedChange, onStartNew }: {
   onViewHistory?: () => void
   onGenStageChange?: (stage: GenStage) => void
   onSubmittedChange?: (submitted: boolean) => void
+  onStartNew?: () => void
 }) {
   const [form, setForm]           = useState<V5Form>(defaultForm)
   const [genStage, setGenStage]     = useState<GenStage>('idle')
@@ -358,6 +359,11 @@ export function SplitViewV5({ onViewHistory, onGenStageChange, onSubmittedChange
               <Button variant="default" onClick={() => setSubmittedAndNotify(false)}>
                 Edit Draft
               </Button>
+              {onStartNew && (
+                <Button variant="default" onClick={onStartNew}>
+                  Start New Package
+                </Button>
+              )}
             </div>
 
           </div>

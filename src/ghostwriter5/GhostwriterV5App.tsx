@@ -66,7 +66,7 @@ export function GhostwriterV5App() {
       </nav>
 
       {view === 'landing' && <LandingPage onGetStarted={() => setView('editor')} />}
-      {view === 'editor'  && <SplitViewV5 key={resetKey} onViewHistory={() => setView('history')} onGenStageChange={stage => setEditorDone(stage === 'done')} onSubmittedChange={setEditorSubmitted} />}
+      {view === 'editor'  && <SplitViewV5 key={resetKey} onViewHistory={() => setView('history')} onGenStageChange={stage => setEditorDone(stage === 'done')} onSubmittedChange={setEditorSubmitted} onStartNew={handleStartNew} />}
       {view === 'history' && <PackageHistory onBack={() => setView('editor')} />}
     </div>
   )
