@@ -767,7 +767,7 @@ export function SplitView({ onViewHistory, onSubmittedChange }: { onViewHistory?
                 Go to Package History
               </Button>
             )}
-            <Button variant="default" onClick={() => setSubmittedAndNotify(false)}>
+            <Button variant="default" onClick={() => { setGenStage('idle'); setSubmittedAndNotify(false) }}>
               Edit Draft
             </Button>
             <Button variant="default" onClick={handleReset}>
