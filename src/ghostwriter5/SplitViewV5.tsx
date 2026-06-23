@@ -379,7 +379,7 @@ export function SplitViewV5({ onViewHistory, onGenStageChange, onSubmittedChange
           <div style={{ maxWidth: 760, margin: '0 auto' }}>
             {/* @ts-ignore */}
             <Banner variant="info" style={{ marginBottom: 24 }}>
-              <strong>This is a draft</strong> — not the final product. Your approved content will be delivered once it passes the human review process.
+              <strong>This is a draft — not the final product.</strong> Your approved content will be delivered once it passes the human review process.
             </Banner>
 
             <div ref={doneCardRef} style={{ marginBottom: 24 }}>
