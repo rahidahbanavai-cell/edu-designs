@@ -309,31 +309,6 @@ export function SplitView({ onViewHistory, onSubmittedChange, onGenStageChange }
   const renderIdlePreview = () => {
     const tabId = previewFmt.id
 
-    if (!hasPreview) {
-      return (
-        <div style={{
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center',
-          padding: '80px 0', gap: 16, textAlign: 'center',
-        }}>
-          <div style={{
-            width: 52, height: 52, borderRadius: '50%',
-            background: palette.gray.light2,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
-          }}>
-            ✦
-          </div>
-          <div>
-            <Body style={{ fontWeight: 600, color: palette.black, marginBottom: 4 }}>
-              Live preview
-            </Body>
-            <Body style={{ color: palette.gray.dark1 }}>
-              Fill in the form on the left to see your content<br />preview update in real time.
-            </Body>
-          </div>
-        </div>
-      )
-    }
 
 
     const visualPlaceholder = (
