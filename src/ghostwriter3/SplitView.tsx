@@ -586,7 +586,6 @@ export function SplitView({ onViewHistory, onSubmittedChange }: { onViewHistory?
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
               {/* @ts-ignore */}
               <Chip label={fmt.label} variant={fmt.badge} />
-              <Badge variant="green">Ready for review</Badge>
             </div>
 
             {/* Title — top-right visual sits beside title */}
