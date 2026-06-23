@@ -12,6 +12,14 @@ type View = 'landing' | 'editor' | 'history'
 export function GhostwriterV3App() {
   const [view, setView] = useState<View>('landing')
   const [editorSubmitted, setEditorSubmitted] = useState(false)
+  const [editorDone, setEditorDone] = useState(false)
+  const [resetKey, setResetKey] = useState(0)
+
+  const handleStartNew = () => {
+    setResetKey(k => k + 1)
+    setEditorDone(false)
+    setEditorSubmitted(false)
+  }
 
   return (
     <div style={{
@@ -47,7 +55,10 @@ export function GhostwriterV3App() {
         {view === 'editor' && !editorSubmitted && (
           <div style={{ display: 'flex', gap: 8 }}>
             <Button variant="default" onClick={() => setView('history')}>Package History</Button>
-            <Button variant="default" onClick={() => setView('landing')}>Overview</Button>
+            {editorDone
+              ? <Button variant="default" onClick={handleStartNew}>Start New Package</Button>
+              : <Button variant="default" onClick={() => setView('landing')}>Overview</Button>
+            }
           </div>
         )}
         {view === 'history' && (
@@ -56,7 +67,7 @@ export function GhostwriterV3App() {
       </nav>
 
       {view === 'landing' && <LandingPage onGetStarted={() => setView('editor')} />}
-      {view === 'editor'  && <SplitView onViewHistory={() => setView('history')} onSubmittedChange={setEditorSubmitted} />}
+      {view === 'editor'  && <SplitView key={resetKey} onViewHistory={() => setView('history')} onSubmittedChange={setEditorSubmitted} onGenStageChange={stage => setEditorDone(stage === 'done')} />}
       {view === 'history' && <PackageHistory onBack={() => setView('editor')} />}
     </div>
   )

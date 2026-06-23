@@ -221,7 +221,7 @@ The Atlas approach: $vectorSearch combined with standard query operators in the 
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function SplitView({ onViewHistory, onSubmittedChange }: { onViewHistory?: () => void; onSubmittedChange?: (submitted: boolean) => void }) {
+export function SplitView({ onViewHistory, onSubmittedChange, onGenStageChange }: { onViewHistory?: () => void; onSubmittedChange?: (submitted: boolean) => void; onGenStageChange?: (stage: GenStage) => void }) {
   const [form, setForm]               = useState<V3Form>(defaultForm)
   const [genStage, setGenStage]       = useState<GenStage>('idle')
   const [progress, setProgress]       = useState(0)
@@ -234,6 +234,8 @@ export function SplitView({ onViewHistory, onSubmittedChange }: { onViewHistory?
     setSubmitted(val)
     onSubmittedChange?.(val)
   }
+
+  useEffect(() => { onGenStageChange?.(genStage) }, [genStage]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleExportDrive = () => {
     setDriveState('exporting')
