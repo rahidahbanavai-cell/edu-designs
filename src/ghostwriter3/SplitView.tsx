@@ -351,12 +351,7 @@ export function SplitView({ onViewHistory, onSubmittedChange, onGenStageChange }
           {form.includeVisual && form.visualPlacement === 'top-right' ? (
             <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', marginBottom: 20 }}>
               <H2 style={{ flex: 1, marginBottom: 0 }}>
-                {form.campaignName
-                  ? tabId === 'blog'     ? `Building Production RAG: ${form.campaignName}`
-                  : tabId === 'linkedin' ? `Thread: ${form.campaignName}`
-                  :                        `Email Campaign: ${form.campaignName}`
-                  : <span style={{ color: palette.gray.light1 }}>Package Name will appear here…</span>
-                }
+                {form.campaignName || <span style={{ color: palette.gray.light1 }}>Package Name will appear here…</span>}
               </H2>
               <div style={{
                 width: 140, flexShrink: 0,
@@ -373,12 +368,7 @@ export function SplitView({ onViewHistory, onSubmittedChange, onGenStageChange }
             </div>
           ) : (
             <H2 style={{ marginBottom: 10 }}>
-              {form.campaignName
-                ? tabId === 'blog'     ? `Building Production RAG: ${form.campaignName}`
-                : tabId === 'linkedin' ? `Thread: ${form.campaignName}`
-                :                        `Email Campaign: ${form.campaignName}`
-                : <span style={{ color: palette.gray.light1 }}>Package Name will appear here…</span>
-              }
+              {form.campaignName || <span style={{ color: palette.gray.light1 }}>Package Name will appear here…</span>}
             </H2>
           )}
 
@@ -503,11 +493,7 @@ export function SplitView({ onViewHistory, onSubmittedChange, onGenStageChange }
 
   const renderDoneContent = (tabId: TabId) => {
     const fmt     = FORMATS.find(f => f.id === tabId)!
-    const title   = tabId === 'blog'
-      ? `Building Production RAG: ${titleText}`
-      : tabId === 'linkedin'
-      ? `LinkedIn Thread: ${titleText}`
-      : `Email Sequence: ${titleText}`
+    const title = titleText
     const fullText = tabId === 'blog' ? FULL_BLOG : tabId === 'linkedin' ? FULL_LINKEDIN : FULL_EMAIL
 
     // Split content at mid-paragraph for 'middle' placement
