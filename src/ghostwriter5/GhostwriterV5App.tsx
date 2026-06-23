@@ -54,7 +54,9 @@ export function GhostwriterV5App() {
         )}
         {view === 'editor' && !editorSubmitted && (
           <div style={{ display: 'flex', gap: 8 }}>
-            <Button variant="default" onClick={() => setView('history')}>Package History</Button>
+            {!editorDone && (
+              <Button variant="default" onClick={() => setView('history')}>Package History</Button>
+            )}
             {editorDone && (
               <Button variant="default" onClick={handleStartNew}>Start New Package</Button>
             )}
