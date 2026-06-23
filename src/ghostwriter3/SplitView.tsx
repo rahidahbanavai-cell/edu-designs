@@ -422,24 +422,6 @@ export function SplitView({ onViewHistory, onSubmittedChange }: { onViewHistory?
 
               {form.includeVisual && form.visualPlacement === 'below-text' && visualPlaceholder}
 
-              <div style={{
-                marginTop: 8, padding: '18px 20px', borderRadius: 8,
-                background: palette.green.light3,
-                border: `1px dashed ${palette.green.dark1}`,
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
-              }}>
-                <div>
-                  <Body style={{ fontWeight: 600, color: palette.green.dark2, marginBottom: 2 }}>
-                    Preview looks right?
-                  </Body>
-                  <Body style={{ color: palette.gray.dark1, fontSize: 12 } as React.CSSProperties}>
-                    {canGenerate ? 'Generate the full draft now.' : 'Finish selecting options on the left.'}
-                  </Body>
-                </div>
-                <Button variant="primary" disabled={!canGenerate} onClick={handleGenerate}>
-                  Generate →
-                </Button>
-              </div>
             </>
           ) : (
             <>
