@@ -341,8 +341,7 @@ export function SplitView({ onViewHistory, onSubmittedChange, onGenStageChange }
         <div style={{ marginBottom: 16 }}>
           {/* @ts-ignore */}
           <Banner variant="info">
-            <strong>This is a live preview — not the final product.</strong>{' '}
-            Your approved drafts, including any visual design, will be delivered once they pass the human review process.
+            This is a draft — not the final product. Once the human review is done you will know whether your content is approved or not.
           </Banner>
         </div>
 
@@ -534,8 +533,7 @@ export function SplitView({ onViewHistory, onSubmittedChange, onGenStageChange }
         <div style={{ marginBottom: 16 }}>
           {/* @ts-ignore */}
           <Banner variant="info">
-            <strong>This is a draft — not the final product.</strong>{' '}
-            Your approved content, including any visual design, will be delivered once it passes the human review process.
+            This is a draft — not the final product. Once the human review is done you will know whether your content is approved or not.
           </Banner>
         </div>
 
