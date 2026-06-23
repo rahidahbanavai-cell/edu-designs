@@ -370,11 +370,6 @@ export function SplitView({ onViewHistory, onSubmittedChange }: { onViewHistory?
         </div>
 
         <Card style={{ padding: '36px 40px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-            {/* @ts-ignore */}
-            <Chip label={previewFmt.label} variant={previewFmt.badge} />
-          </div>
-
           {/* Title row — top-right visual sits beside the title */}
           {form.includeVisual && form.visualPlacement === 'top-right' ? (
             <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', marginBottom: 20 }}>
@@ -383,7 +378,7 @@ export function SplitView({ onViewHistory, onSubmittedChange }: { onViewHistory?
                   ? tabId === 'blog'     ? `Building Production RAG: ${form.campaignName}`
                   : tabId === 'linkedin' ? `Thread: ${form.campaignName}`
                   :                        `Email Campaign: ${form.campaignName}`
-                  : <span style={{ color: palette.gray.light1 }}>Campaign title will appear here…</span>
+                  : <span style={{ color: palette.gray.light1 }}>Package Name will appear here…</span>
                 }
               </H2>
               <div style={{
@@ -405,7 +400,7 @@ export function SplitView({ onViewHistory, onSubmittedChange }: { onViewHistory?
                 ? tabId === 'blog'     ? `Building Production RAG: ${form.campaignName}`
                 : tabId === 'linkedin' ? `Thread: ${form.campaignName}`
                 :                        `Email Campaign: ${form.campaignName}`
-                : <span style={{ color: palette.gray.light1 }}>Campaign title will appear here…</span>
+                : <span style={{ color: palette.gray.light1 }}>Package Name will appear here…</span>
               }
             </H2>
           )}
