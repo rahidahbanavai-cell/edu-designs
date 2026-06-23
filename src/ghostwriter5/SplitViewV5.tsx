@@ -388,7 +388,7 @@ export function SplitViewV5({ onViewHistory, onGenStageChange, onSubmittedChange
                   {/* @ts-ignore */}
                   <Chip label="AI Generated" variant="gray" />
                 </div>
-                <H2 style={{ marginBottom: 20 }}>Building Production RAG: {titleText}</H2>
+                <H2 style={{ marginBottom: 20 }}>{titleText}</H2>
                 <Body style={{ lineHeight: 1.9, color: palette.gray.dark1, whiteSpace: 'pre-wrap' } as React.CSSProperties}>
                   {FULL_BLOG}
                 </Body>
@@ -616,49 +616,23 @@ export function SplitViewV5({ onViewHistory, onGenStageChange, onSubmittedChange
       {/* Right panel: live preview */}
       <div style={{ flex: 1, overflowY: 'auto', background: palette.gray.light3, padding: '32px 40px' }}>
         <div style={{ maxWidth: 680, margin: '0 auto' }}>
-          {!hasPreview ? (
-            <div style={{
-              display: 'flex', flexDirection: 'column',
-              alignItems: 'center', justifyContent: 'center',
-              padding: '80px 0', gap: 16, textAlign: 'center',
-            }}>
-              <div style={{
-                width: 52, height: 52, borderRadius: '50%',
-                background: palette.gray.light2,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
-              }}>
-                ✦
-              </div>
-              <div>
-                <Body style={{ fontWeight: 600, color: palette.black, marginBottom: 4 }}>Live preview</Body>
-                <Body style={{ color: palette.gray.dark1 }}>
-                  Enter a package name to see your content<br />preview update in real time.
-                </Body>
-              </div>
+          <>
+            <div style={{ marginBottom: 16 }}>
+              {/* @ts-ignore */}
+              <Banner variant="info">
+                <strong>This is a draft</strong> — not the final product. Your approved content will be delivered once it passes the human review process.
+              </Banner>
             </div>
-          ) : (
-            <>
-              <div style={{ marginBottom: 16 }}>
-                {/* @ts-ignore */}
-                <Banner variant="info">
-                  <strong>This is a draft</strong> — not the final product. Your approved content will be delivered once it passes the human review process.
-                </Banner>
-              </div>
-              <Card style={{ padding: '36px 40px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-                  {/* @ts-ignore */}
-                  <Chip label="Blog Post" variant="green" />
-                </div>
-                <H2 style={{ marginBottom: 20 }}>
-                  Building Production RAG: {titleText}
-                </H2>
+            <Card style={{ padding: '36px 40px' }}>
+              <H2 style={{ marginBottom: 20 }}>
+                {form.campaignName || <span style={{ color: palette.gray.light1 }}>Package Name will appear here…</span>}
+              </H2>
+              <ParagraphSkeleton />
+              <div style={{ marginTop: 16 }}>
                 <ParagraphSkeleton />
-                <div style={{ marginTop: 16 }}>
-                  <ParagraphSkeleton />
-                </div>
-              </Card>
-            </>
-          )}
+              </div>
+            </Card>
+          </>
         </div>
       </div>
     </div>
