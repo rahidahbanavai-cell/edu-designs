@@ -620,7 +620,7 @@ export function SplitViewV5({ onViewHistory, onGenStageChange, onSubmittedChange
             <div style={{ marginBottom: 16 }}>
               {/* @ts-ignore */}
               <Banner variant="info">
-                This is a draft — not the final product. Once the human review is done you will know whether your content is approved or not.
+                <strong>This is a draft — not the final product.</strong> Once the human review is done you will know whether your content is approved or not.
               </Banner>
             </div>
             <Card style={{ padding: '36px 40px' }}>
