@@ -1075,11 +1075,12 @@ export function SplitView({ onViewHistory, onSubmittedChange, onGenStageChange }
             <Tabs
               setSelected={(i: number) => setActiveTab(selectedFmts[i]?.id ?? activeTab)}
               selected={selectedTabIdx}
+              style={{ paddingLeft: 32, paddingRight: 32 }}
             >
               {selectedFmts.map(f => (
                 // @ts-ignore
                 <Tab key={f.id} name={f.label}>
-                  <div style={{ padding: '28px 32px', background: palette.gray.light3 }}>
+                  <div style={{ padding: '28px 0', background: palette.gray.light3 }}>
                     <div style={{ maxWidth: 720, margin: '0 auto' }}>
                       {renderDoneContent(f.id)}
                     </div>
