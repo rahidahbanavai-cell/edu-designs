@@ -59,11 +59,6 @@ const STEPS = [
     desc: 'Once your drafts are ready, click "Download for Review" to export them as a PDF. This marks the draft as ready to share with your external reviewer.',
     illustration: <StepIllustration5 />,
   },
-  {
-    title: 'Mark for Review',
-    desc: 'Click "Mark for Review" to log the package as in review inside Ghostwriter. Then submit the PDF to your reviewer outside the tool and await their response.',
-    illustration: <StepIllustration4 />,
-  },
 ]
 
 // ─── How it works cards ───────────────────────────────────────────────────────
@@ -77,7 +72,7 @@ const HOW_IT_WORKS = [
   {
     glyph: 'Download',
     title: 'Download for Review',
-    desc: 'Download your drafts as a PDF and click "Mark for Review" to log the package. Submit the PDF to your reviewer outside Ghostwriter.',
+    desc: 'Download your drafts as a PDF and submit them to your reviewer outside Ghostwriter.',
   },
 ]
 
@@ -119,7 +114,7 @@ export function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
             marginBottom: 36, fontSize: 16, animationDelay: '0.1s',
           } as React.CSSProperties}>
             Name your package, write a prompt, and let Ghostwriter produce
-            polished drafts in minutes. Download, submit for external review, then return to record the outcome.
+            polished drafts in minutes. Download and submit for external review.
           </Body>
           <div className="gw3-animate" style={{ display: 'flex', gap: 12, animationDelay: '0.15s' }}>
             <Button variant="primary" onClick={onGetStarted}>
@@ -285,8 +280,6 @@ export function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
                 <Step>Generate</Step>
                 {/* @ts-ignore */}
                 <Step>Download</Step>
-                {/* @ts-ignore */}
-                <Step>Mark</Step>
               </Stepper>
             </div>
 
