@@ -351,11 +351,6 @@ export function SplitViewV5({ onViewHistory, onGenStageChange, onSubmittedChange
 
             {/* Actions */}
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const }}>
-              {onViewHistory && (
-                <Button variant="primary" onClick={onViewHistory}>
-                  Go to Package History
-                </Button>
-              )}
               <Button variant="default" onClick={() => { setGenStage('idle'); setSubmittedAndNotify(false) }}>
                 Edit Draft
               </Button>

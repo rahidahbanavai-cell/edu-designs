@@ -12,12 +12,14 @@ type View = 'landing' | 'editor' | 'history'
 export function GhostwriterV5App() {
   const [view, setView] = useState<View>('landing')
   const [editorDone, setEditorDone] = useState(false)
+  const [editorStarted, setEditorStarted] = useState(false)
   const [editorSubmitted, setEditorSubmitted] = useState(false)
   const [resetKey, setResetKey] = useState(0)
 
   const handleStartNew = () => {
     setResetKey(k => k + 1)
     setEditorDone(false)
+    setEditorStarted(false)
     setEditorSubmitted(false)
   }
 
@@ -50,15 +52,8 @@ export function GhostwriterV5App() {
         {view === 'editor' && <Badge variant="blue" style={{ marginLeft: 8 }}>Live Preview</Badge>}
         <div style={{ flex: 1 }} />
 
-        {view === 'editor' && !editorSubmitted && (
-          <div style={{ display: 'flex', gap: 8 }}>
-            {!editorDone && (
-              <Button variant="default" onClick={() => setView('history')}>Package History</Button>
-            )}
-            {editorDone && (
-              <Button variant="default" onClick={handleStartNew}>Start New Package</Button>
-            )}
-          </div>
+        {view === 'editor' && !editorSubmitted && editorDone && (
+          <Button variant="default" onClick={handleStartNew}>Start New Package</Button>
         )}
         {view === 'history' && (
           <Button variant="default" onClick={() => setView('editor')}>Back to Editor</Button>
@@ -66,7 +61,7 @@ export function GhostwriterV5App() {
       </nav>
 
       {view === 'landing' && <LandingPage onGetStarted={() => setView('editor')} />}
-      {view === 'editor'  && <SplitViewV5 key={resetKey} onViewHistory={() => setView('history')} onGenStageChange={stage => setEditorDone(stage === 'done')} onSubmittedChange={setEditorSubmitted} onStartNew={handleStartNew} />}
+      {view === 'editor'  && <SplitViewV5 key={resetKey} onViewHistory={() => setView('history')} onGenStageChange={stage => { setEditorDone(stage === 'done'); setEditorStarted(stage !== 'idle') }} onSubmittedChange={setEditorSubmitted} onStartNew={handleStartNew} />}
       {view === 'history' && <PackageHistory onBack={() => setView('editor')} />}
     </div>
   )

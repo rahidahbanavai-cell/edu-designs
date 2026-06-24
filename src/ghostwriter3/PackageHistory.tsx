@@ -83,7 +83,7 @@ const STATUS_CONFIG: Record<PkgStatus, {
 }> = {
   'approved':  { label: 'Approved',  badge: 'green',  headerBg: palette.white, headerBorder: palette.green.dark1, headerColor: palette.green.dark2, icon: '✓' },
   'in-review': { label: 'In Review', badge: 'yellow', headerBg: palette.white, headerBorder: '#F59E0B',          headerColor: '#92400E',           icon: '○' },
-  'denied':    { label: 'Denied',    badge: 'red',    headerBg: palette.white, headerBorder: '#EF4444',          headerColor: '#991B1B',           icon: '✕' },
+  'denied':    { label: 'Try Again', badge: 'red',    headerBg: palette.white, headerBorder: '#EF4444',          headerColor: '#991B1B',           icon: '✕' },
 }
 
 // ─── PackageHistory ───────────────────────────────────────────────────────────
@@ -246,7 +246,7 @@ function DetailInReview({ pkg, onApprove, onDeny }: {
               Mark as Approved
             </Button>
             <Button variant="danger" onClick={() => setDenying(true)}>
-              Mark as Denied
+              Mark as Not Approved
             </Button>
           </div>
         </Card>
@@ -255,7 +255,7 @@ function DetailInReview({ pkg, onApprove, onDeny }: {
           <div style={{ marginBottom: 20 }}>
             {/* @ts-ignore */}
             <TextArea
-              label="Reason for Denial"
+              label="Reasoning for Non Approval"
               description="Enter the reason provided by your reviewer so you can reference it later."
               value={denialReason}
               onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDenialReason(e.target.value)}
@@ -268,7 +268,7 @@ function DetailInReview({ pkg, onApprove, onDeny }: {
               disabled={!denialReason.trim()}
               onClick={() => { onDeny(denialReason.trim()); setDenying(false) }}
             >
-              Confirm Denial
+              Confirm
             </Button>
             <Button variant="default" onClick={() => { setDenying(false); setDenialReason('') }}>
               Cancel
@@ -288,7 +288,7 @@ function DetailDenied({ pkg, onNewPackage }: { pkg: Pkg; onNewPackage: () => voi
     <>
       <StatusHeader cfg={cfg} pkg={pkg} />
       <Card style={{ padding: '20px 24px', marginBottom: 20 }}>
-        <Overline style={{ display: 'block', marginBottom: 8, color: palette.gray.dark1 }}>REASON FOR DENIAL</Overline>
+        <Overline style={{ display: 'block', marginBottom: 8, color: palette.gray.dark1 }}>REASON FOR NON APPROVAL</Overline>
         <Body style={{ color: palette.black, lineHeight: 1.7 }}>{pkg.denialReason}</Body>
       </Card>
       <div>
