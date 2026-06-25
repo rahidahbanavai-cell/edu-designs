@@ -893,7 +893,7 @@ export function SplitView({ onViewHistory, onSubmittedChange, onGenStageChange }
           <div style={{ marginBottom: 24 }}>
             <Label style={{ display: 'block', marginBottom: 4 }}>Additional Context</Label>
             <Body style={{ color: palette.gray.dark1, marginBottom: 8, fontSize: 12 } as React.CSSProperties}>
-              Upload files with angles, constraints, or examples to include.
+              Upload files that relate to your target audience, tone & voice, and the output formats you're looking for in your package — in addition to any examples or constraints that need to be considered.
             </Body>
             <input
               id="context-file-input"

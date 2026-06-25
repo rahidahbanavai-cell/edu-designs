@@ -446,7 +446,7 @@ export function SplitViewV5({ onViewHistory, onGenStageChange, onSubmittedChange
           <div style={{ marginBottom: 24 }}>
             <TextArea
               label="Prompt"
-              description="Describe what to create and optionally attach supporting files."
+              description="Describe what to create — include details about your target audience, tone & voice, and ideal output formats. Optionally attach supporting files."
               value={form.prompt}
               onChange={e => update({ prompt: e.target.value })}
               placeholder="e.g. Write a blog post about production RAG pipelines using Atlas Vector Search, emphasizing operational simplicity…"
